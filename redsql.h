@@ -11,6 +11,7 @@ struct query_info {
     char **result;
 };
 
+//NOTE keep this hidden from user
 struct connection_info {
     MYSQL* mysql;
     redisAsyncContext *context;
