@@ -1,5 +1,6 @@
 #include <stdarg.h>
 #include "sql_api.h"
+#include "_priv_sql_api.h"
 
 static int err_check(MYSQL *mysql, int res) {
     if(res) {
@@ -11,17 +12,28 @@ static int err_check(MYSQL *mysql, int res) {
     return 0;
 }
 
-static arr_list *gen_list(size_t rows, size_t cols) {
-    arr_list *list = malloc(sizeof(arr_list));
-    list->list = malloc(rows * sizeof(list));
-    for(int i = 0; i < rows; i++) {
-        list->list[i].string_arr = malloc(sizeof(char *) * cols);
+static SQL_ROWS *gen_rows(int num_rows, int num_cols) {
+    SQL_ROWS *sql_rows = malloc(sizeof(*sql_rows));
+
+    sql_rows->num_rows = num_rows;
+    sql_rows->num_cols = num_cols;
+
+    sql_rows->rows = malloc(sizeof(ROW) * (num_rows));
+    
+    for (int i = 0; i < num_rows; i++) {
+        ROW row = sql_rows->rows[i];
+        row.fields = malloc(sizeof(char *) * num_cols);
+        for(int j = 0; j < num_cols; j++) {
+            //NOTE arbitrary number for now
+            row.fields[j] = malloc(sizeof(char) * 10000);
+        }
+        sql_rows->rows[i] = row;
     }
-    return list;
+
+    return sql_rows;
 }
 
-
-arr_list *read_query(MYSQL *mysql, char *query, ...) {
+SQL_ROWS *read_query(MYSQL *mysql, char *query, ...) {
 
     va_list args, args_reuse;
     va_start(args, query);
@@ -34,7 +46,6 @@ arr_list *read_query(MYSQL *mysql, char *query, ...) {
     vsnprintf(buffer, size, query, args_reuse);
     va_end(args);
     va_end(args_reuse);
-    puts(buffer);
 
     if(err_check(mysql, mysql_query(mysql, buffer))) {
         return NULL;
@@ -44,26 +55,23 @@ arr_list *read_query(MYSQL *mysql, char *query, ...) {
 
     int num_rows = mysql_num_rows(result);
     int num_cols = mysql_num_fields(result);
+
+    SQL_ROWS *sql_rows = gen_rows(num_rows, num_cols);
     
     MYSQL_ROW row;
-    register int i = 0;
+    register int j = 0;
     while(row = mysql_fetch_row(result)) {
-        for(int j = 0; j < num_cols; j++) {
-            if(row[j]) {
-                puts(row[j]);
-            }
-            else {
-                puts("nulld");
-            }
+        for (int i = 0; i < num_cols; i++) {
+            strncpy(sql_rows->rows[j].fields[i], row[i], strlen(row[i]));
         }
-        i++; 
+        j++;
     }
 
     mysql_free_result(result);
-    return NULL;
+    return sql_rows;
 }
 
-unsigned int write_query(MYSQL *mysql, char *query, ...) {
+uint32_t write_query(MYSQL *mysql, char *query, ...) {
     return 0;
 }
 
@@ -72,3 +80,20 @@ void stream_read_query(MYSQL *mysql, char *query, stream_func func, ...) {
 }
 
 
+uint32_t get_num_rows(SQL_ROWS *rows) {
+    return rows->num_rows;
+}
+
+uint32_t get_num_cols(SQL_ROWS *rows) {
+    return rows->num_cols;
+}
+
+char *get_row(SQL_ROWS *rows, uint32_t row, uint32_t col) {
+    return rows->rows[row].fields[col];
+    /*return rows->rows[index];*/
+}
+
+void free_sql_rows(SQL_ROWS *rows) {
+    free(rows->rows);
+    free(rows);
+}

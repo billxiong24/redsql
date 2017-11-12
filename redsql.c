@@ -175,8 +175,36 @@ int main(void) {
         /*exit(1);*/
     /*}*/
 
-    char *query =  "SELECT * FROM test_table WHERE col1 = '%d'";
-    arr_list *list = read_query(mysql, query, 10);
+    char *query = "SELECT id, chat_name, code, username, creator from Chat INNER JOIN MemberOf ON MemberOf.chat_id = Chat.id WHERE id = '%s'";
+
+
+    SQL_ROWS *sql_rows = read_query(mysql, query,  "0043e138f3a1daf9ccfbf718fc9acd48");
+
+    
+    for (int i = 0; i < get_num_rows(sql_rows); i++) {
+        for(int j = 0; j < get_num_cols(sql_rows); j++) {
+            char *res = get_row(sql_rows, i, j);
+            if(res) {
+                puts(res);
+            }
+            else {
+                puts("nulld");
+            }
+        }
+    }
+
+    /*for (int i = 0; i < get_num_rows(rows); i++) {*/
+        /*MYSQL_ROW row = get_row(rows, i);*/
+        /*for(int j = 0; j < get_num_cols(rows); j++) {*/
+            /*if(row[j]) {*/
+                /*puts(row[j]);*/
+            /*}*/
+            /*else {*/
+                /*puts("|Null");*/
+            /*}*/
+        /*}*/
+    /*}*/
+
 
     /*for (int i = 0; i < list->size; i++) {*/
         /*char **strs = list[i].list->string_arr;*/
