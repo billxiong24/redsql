@@ -34,15 +34,15 @@ int main(void) {
         fprintf(stderr, "connection failed\n");
         exit(1);
     }
-    MYSQL_STMT    *stmt;
-    MYSQL_BIND    bind[3];
-    my_ulonglong  affected_rows;
-    int           param_count;
-    short         small_data;
-    int           int_data;
-    char          str_data[STRING_SIZE];
-    unsigned long str_length;
-    my_bool       is_null;
+    /*MYSQL_STMT    *stmt;*/
+    /*MYSQL_BIND    bind[3];*/
+    /*my_ulonglong  affected_rows;*/
+    /*int           param_count;*/
+    /*short         small_data;*/
+    /*int           int_data;*/
+    /*char          str_data[STRING_SIZE];*/
+    /*unsigned long str_length;*/
+    /*my_bool       is_null;*/
 
     /*[> Prepare an INSERT query with 3 parameters <]*/
     /*[> (the TIMESTAMP column is not named; the server <]*/
@@ -181,17 +181,18 @@ int main(void) {
     SQL_ROWS *sql_rows = read_query(mysql, query,  "0043e138f3a1daf9ccfbf718fc9acd48");
 
     
-    for (int i = 0; i < get_num_rows(sql_rows); i++) {
-        for(int j = 0; j < get_num_cols(sql_rows); j++) {
-            char *res = get_row(sql_rows, i, j);
-            if(res) {
-                puts(res);
-            }
-            else {
-                puts("nulld");
-            }
-        }
-    }
+    /*for (int i = 0; i < get_num_rows(sql_rows); i++) {*/
+        /*for(int j = 0; j < get_num_cols(sql_rows); j++) {*/
+            /*char *res = get_row(sql_rows, i, j);*/
+            /*if(res) {*/
+                /*puts(res);*/
+            /*}*/
+            /*else {*/
+                /*puts("nulld");*/
+            /*}*/
+        /*}*/
+    /*}*/
+    free_sql_rows(sql_rows);
 
     /*for (int i = 0; i < get_num_rows(rows); i++) {*/
         /*MYSQL_ROW row = get_row(rows, i);*/
@@ -236,5 +237,6 @@ int main(void) {
             /*printf("%s \n", row[i]);*/
         /*}*/
     /*}*/
+    mysql_close(mysql);
     return 0;
 }

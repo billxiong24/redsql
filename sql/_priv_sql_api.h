@@ -1,10 +1,6 @@
 #ifndef _PRIV_SQL_API_H
 #define _PRIV_SQL_API_H
-
-
-typedef struct {
-    char **fields;
-} ROW;
+#include "_priv_row.h"
 
 struct SQL_ROWS {
     ROW *rows;

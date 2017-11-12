@@ -93,7 +93,18 @@ char *get_row(SQL_ROWS *rows, uint32_t row, uint32_t col) {
     /*return rows->rows[index];*/
 }
 
-void free_sql_rows(SQL_ROWS *rows) {
-    free(rows->rows);
-    free(rows);
+void free_sql_rows(SQL_ROWS *sql_rows) {
+    for (int i = 0; i < sql_rows->num_rows; i++) {
+        ROW row = sql_rows->rows[i];
+        /*row.fields = malloc(sizeof(char *) * num_cols);*/
+        for(int j = 0; j < sql_rows->num_cols; j++) {
+            //NOTE arbitrary number for now
+            free(row.fields[j]);
+            /*row.fields[j] = malloc(sizeof(char) * 10000);*/
+        }
+        free(row.fields);
+    }
+
+    free(sql_rows->rows);
+    free(sql_rows);
 }
