@@ -12,28 +12,7 @@ static int err_check(MYSQL *mysql, int res) {
     return 0;
 }
 
-static SQL_ROWS *gen_rows(int num_rows, int num_cols) {
-    SQL_ROWS *sql_rows = malloc(sizeof(*sql_rows));
-
-    sql_rows->num_rows = num_rows;
-    sql_rows->num_cols = num_cols;
-
-    sql_rows->rows = malloc(sizeof(ROW) * (num_rows));
-    
-    for (int i = 0; i < num_rows; i++) {
-        ROW row = sql_rows->rows[i];
-        row.fields = malloc(sizeof(char *) * num_cols);
-        for(int j = 0; j < num_cols; j++) {
-            //NOTE arbitrary number for now
-            row.fields[j] = malloc(sizeof(char) * 10000);
-        }
-        sql_rows->rows[i] = row;
-    }
-
-    return sql_rows;
-}
-
-SQL_ROWS *read_query(MYSQL *mysql, char *query, ...) {
+RES_ROWS *read_query(MYSQL *mysql, char *query, ...) {
 
     va_list args, args_reuse;
     va_start(args, query);
@@ -56,7 +35,7 @@ SQL_ROWS *read_query(MYSQL *mysql, char *query, ...) {
     int num_rows = mysql_num_rows(result);
     int num_cols = mysql_num_fields(result);
 
-    SQL_ROWS *sql_rows = gen_rows(num_rows, num_cols);
+    RES_ROWS *sql_rows = gen_rows(num_rows, num_cols);
     
     MYSQL_ROW row;
     register int j = 0;
@@ -67,7 +46,14 @@ SQL_ROWS *read_query(MYSQL *mysql, char *query, ...) {
         j++;
     }
 
+
     mysql_free_result(result);
+    /*for(ijt i = 0; i < num_rows; i++) {*/
+        /*char ** str= sql_rows->rows[i].fields;*/
+        /*for(int j = 0; j < num_cols; j++) {*/
+            /*puts(str[j]);*/
+        /*}*/
+    /*}*/
     return sql_rows;
 }
 
@@ -79,32 +65,37 @@ void stream_read_query(MYSQL *mysql, char *query, stream_func func, ...) {
 
 }
 
-
-uint32_t get_num_rows(SQL_ROWS *rows) {
-    return rows->num_rows;
+struct RES_ROWS_ITER *sql_iter(struct RES_ROWS *rows) {
+    return res_row_iterator(rows);
 }
 
-uint32_t get_num_cols(SQL_ROWS *rows) {
-    return rows->num_cols;
+char **sql_iter_next(struct RES_ROWS_ITER *iter) {
+    return res_row_next(iter);
 }
 
-char *get_row(SQL_ROWS *rows, uint32_t row, uint32_t col) {
-    return rows->rows[row].fields[col];
-    /*return rows->rows[index];*/
+bool sql_iter_has_next(struct RES_ROWS_ITER *iter) {
+    return iter_has_next(iter);
 }
 
-void free_sql_rows(SQL_ROWS *sql_rows) {
-    for (int i = 0; i < sql_rows->num_rows; i++) {
-        ROW row = sql_rows->rows[i];
-        /*row.fields = malloc(sizeof(char *) * num_cols);*/
+void sql_iter_reset(struct RES_ROWS_ITER *iter) {
+    reset_res_row(iter);
+}
+
+size_t sql_iter_num_cols(struct RES_ROWS_ITER *iter) {
+    return iter_num_cols(iter);
+}
+
+void sql_iter_free(struct RES_ROWS_ITER *iter) {
+    free_res_row_iter(iter);
+}
+
+
+void print_res(struct RES_ROWS *sql_rows) {
+    for(int i = 0; i < sql_rows->num_rows; i++) {
+        char ** str= sql_rows->rows[i].fields;
         for(int j = 0; j < sql_rows->num_cols; j++) {
-            //NOTE arbitrary number for now
-            free(row.fields[j]);
-            /*row.fields[j] = malloc(sizeof(char) * 10000);*/
+            puts(str[j]);
         }
-        free(row.fields);
     }
 
-    free(sql_rows->rows);
-    free(sql_rows);
 }

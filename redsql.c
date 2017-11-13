@@ -178,7 +178,37 @@ int main(void) {
     char *query = "SELECT id, chat_name, code, username, creator from Chat INNER JOIN MemberOf ON MemberOf.chat_id = Chat.id WHERE id = '%s'";
 
 
-    SQL_ROWS *sql_rows = read_query(mysql, query,  "0043e138f3a1daf9ccfbf718fc9acd48");
+    RES_ROWS *sql_rows = read_query(mysql, query,  "0043e138f3a1daf9ccfbf718fc9acd48");
+    RES_ROWS_ITER *iter = sql_iter(sql_rows);
+
+    while(sql_iter_has_next(iter)) {
+        char **strs = sql_iter_next(iter);
+        for(int j = 0; j < sql_iter_num_cols(iter); j++) {
+            if(strs[j]) {
+                puts(strs[j]);
+            }
+            else {
+                puts("nulld");
+            }
+        }
+    }
+    sql_iter_reset(iter);
+
+    puts("------------------------------------------");
+
+    while(sql_iter_has_next(iter)) {
+        char **strs = sql_iter_next(iter);
+        for(int j = 0; j < sql_iter_num_cols(iter); j++) {
+            if(strs[j]) {
+                puts(strs[j]);
+            }
+            else {
+                puts("nulld");
+            }
+        }
+    }
+
+    sql_iter_free(iter);
 
     
     /*for (int i = 0; i < get_num_rows(sql_rows); i++) {*/
@@ -192,7 +222,6 @@ int main(void) {
             /*}*/
         /*}*/
     /*}*/
-    free_sql_rows(sql_rows);
 
     /*for (int i = 0; i < get_num_rows(rows); i++) {*/
         /*MYSQL_ROW row = get_row(rows, i);*/
