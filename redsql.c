@@ -13,6 +13,7 @@
 #define DROP_SAMPLE_TABLE "DROP TABLE IF EXISTS test_table"
 #define CREATE_SAMPLE_TABLE "CREATE TABLE test_table(col1 INT,col2 VARCHAR(40),col3 SMALLINT, col4 TIMESTAMP)"
 #define INSERT_SAMPLE "INSERT INTO test_table(col1,col2,col3) VALUES(?,?,?)"
+void stream(MYSQL_ROW, size_t, size_t);
 
 static char *test(char *fmt, ...) {
     char *string = malloc(10);
@@ -24,11 +25,20 @@ static char *test(char *fmt, ...) {
     return string;
 }
 
+void stream(MYSQL_ROW row, size_t num_rows, size_t num_cols) {
+    for (int i = 0; i < num_cols; i++) {
+        if(row[i]) {
+            puts(row[i]);
+        }
+        else {
+            puts("Nulld");
+        }
+    }
+}
+
+
+
 int main(void) {
-
-
-
-
     MYSQL * mysql = mysql_init(NULL);
     if (mysql_real_connect(mysql, "localhost", "root", "Chem1313#", "chatdb", 0, NULL, 0) == NULL) {
         fprintf(stderr, "connection failed\n");
@@ -196,17 +206,8 @@ int main(void) {
 
     puts("------------------------------------------");
 
-    while(sql_iter_has_next(iter)) {
-        char **strs = sql_iter_next(iter);
-        for(int j = 0; j < sql_iter_num_cols(iter); j++) {
-            if(strs[j]) {
-                puts(strs[j]);
-            }
-            else {
-                puts("nulld");
-            }
-        }
-    }
+
+    stream_read_query(mysql, "SELECT id, chat_name, code, username, creator from Chat INNER JOIN MemberOf ON MemberOf.chat_id = Chat.id WHERE id = '%s'", stream, "0043e138f3a1daf9ccfbf718fc9acd48");
 
     sql_iter_free(iter);
 

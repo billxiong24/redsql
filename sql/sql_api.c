@@ -12,7 +12,10 @@ static int err_check(MYSQL *mysql, int res) {
     return 0;
 }
 
-static MYSQL_RES *exec_query(MYSQL *mysql, char *query, va_list args, va_list args_reuse) {
+static MYSQL_RES *exec_query(MYSQL *mysql, char *query, va_list args) {
+    va_list args_reuse;
+    va_copy(args_reuse, args);
+
     int size = 1 + vsnprintf(NULL, 0, query, args);
     char buffer[size];
     //we now know the appropriate suze to allocate to avoid buffer overflow
@@ -29,11 +32,10 @@ static MYSQL_RES *exec_query(MYSQL *mysql, char *query, va_list args, va_list ar
 
 RES_ROWS *read_query(MYSQL *mysql, char *query, ...) {
 
-    va_list args, args_reuse;
+    va_list args;
     va_start(args, query);
-    va_copy(args_reuse, args);
 
-    MYSQL_RES *result = exec_query(mysql, query, args, args_reuse);
+    MYSQL_RES *result = exec_query(mysql, query, args);
 
     int num_rows = mysql_num_rows(result);
     int num_cols = mysql_num_fields(result);
@@ -55,17 +57,29 @@ RES_ROWS *read_query(MYSQL *mysql, char *query, ...) {
 
 uint32_t write_query(MYSQL *mysql, char *query, ...) {
 
-    va_list args, args_reuse;
+    va_list args;
     va_start(args, query);
-    va_copy(args_reuse, args);
 
-    MYSQL_RES *result = exec_query(mysql, query, args, args_reuse);
+    MYSQL_RES *result = exec_query(mysql, query, args);
     mysql_free_result(result);
     return mysql_affected_rows(mysql);
 }
 
 void stream_read_query(MYSQL *mysql, char *query, stream_func func, ...) {
+    va_list args;
+    va_start(args, func);
 
+    MYSQL_RES *result = exec_query(mysql, query, args);
+
+    int num_rows = mysql_num_rows(result);
+    int num_cols = mysql_num_fields(result);
+
+    MYSQL_ROW row;
+    register int j = 0;
+    while(row = mysql_fetch_row(result)) {
+        func(row, num_rows, num_cols);
+    }
+    mysql_free_result(result);
 }
 
 struct RES_ROWS_ITER *sql_iter(struct RES_ROWS *rows) {

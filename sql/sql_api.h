@@ -22,7 +22,7 @@ typedef struct RES_ROWS RES_ROWS;
 typedef struct RES_ROWS_ITER RES_ROWS_ITER;
 
 
-typedef void (*stream_func)(MYSQL_ROW);
+typedef void (*stream_func)(MYSQL_ROW, size_t num_rows, size_t num_cols);
 
 /**
  * Any query to do with reading from database, i.e. SELECT, SHOW, DESCRIBE
