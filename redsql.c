@@ -210,6 +210,8 @@ int main(void) {
 
     sql_iter_free(iter);
 
+    uint32_t temp = write_query(mysql, "update test_table SET col3=%d where col2='%s'", 3409, "MySQL");
+    printf("temp = %d\n", temp);
     
     /*for (int i = 0; i < get_num_rows(sql_rows); i++) {*/
         /*for(int j = 0; j < get_num_cols(sql_rows); j++) {*/
