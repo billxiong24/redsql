@@ -3,7 +3,7 @@ CC=gcc
 CFLAGS=-Wall
 EXEC=redsql
 
-redsql: redsql.c redsql.h sql/* row/*
+redsql: redsql.c redsql.h sql/* row/* types.h
 	$(CC) $(CFLAGS) -o $(EXEC) lib/libmysqlclient.so redsql.c sql/sql_api.c row/_priv_row.c `./bin/mysql_config --cflags --libs` -levent -lhiredis
 
 clean:
