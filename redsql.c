@@ -2,6 +2,7 @@
 #include "redsql.h"
 #include "sql/sql_api.h"
 #include <stdarg.h>
+#include "tpl.h"
 
 /*int main(void) {*/
     /*MYSQL *con = mysql_init(NULL);*/
@@ -195,25 +196,60 @@ int main(void) {
         char **strs = sql_iter_next(iter);
         for(int j = 0; j < sql_iter_num_cols(iter); j++) {
             if(strs[j]) {
-                puts(strs[j]);
+                /*puts(strs[j]);*/
             }
             else {
-                puts("nulld");
+                /*puts("nulld");*/
             }
         }
     }
     sql_iter_reset(iter);
 
-    puts("------------------------------------------");
+    tpl_node *tn;
 
+    size_t num_cols = sql_iter_num_cols(iter);
 
-    stream_read_query(mysql, "SELECT id, chat_name, code, username, creator from Chat INNER JOIN MemberOf ON MemberOf.chat_id = Chat.id WHERE id = '%s'", stream, "0043e138f3a1daf9ccfbf718fc9acd48");
+    char *str;
+    tn = tpl_map("A(A(s))", &str);
+
+    while(sql_iter_has_next(iter)) {
+        char **next = sql_iter_next(iter);
+        for(int i = 0; i < num_cols; i++) {
+            str = next[i];
+            if(str) {
+                tpl_pack(tn, 2);
+            }
+        }
+        //some lpush here
+        tpl_pack(tn, 1);
+    }
+    char *buff;
+    size_t size;
+    tpl_dump(tn, TPL_GETSIZE, &size);
+    tpl_dump(tn, TPL_MEM, &buff, &size);
+
+    for (int i = 0; i < size; i++) {
+        if(!buff[i]) {
+            putchar('%');
+        }
+        else {
+            putchar(buff[i]);
+        }
+    }
+
+    tpl_load(tn, TPL_MEM, buff, size);
+    puts("----------------------------------------------");
+    while(tpl_unpack(tn, 1) > 0) {
+        while(tpl_unpack(tn, 2) > 0) {
+            puts(str);
+            free(str);
+        }
+    }
+    free(buff);
+    tpl_free(tn);
 
     sql_iter_free(iter);
 
-    uint32_t temp = write_query(mysql, "update test_table SET col3=%d where col2='%s'", 3409, "MySQL");
-    printf("temp = %d\n", temp);
-    
     /*for (int i = 0; i < get_num_rows(sql_rows); i++) {*/
         /*for(int j = 0; j < get_num_cols(sql_rows); j++) {*/
             /*char *res = get_row(sql_rows, i, j);*/

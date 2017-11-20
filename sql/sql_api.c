@@ -75,7 +75,7 @@ void stream_read_query(MYSQL *mysql, char *query, stream_func func, ...) {
     int num_cols = mysql_num_fields(result);
 
     MYSQL_ROW row;
-    register int j = 0;
+
     while(row = mysql_fetch_row(result)) {
         func(row, num_rows, num_cols);
     }

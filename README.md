@@ -34,3 +34,11 @@ ldconfig
 ```    
   
 Hiredis header files will be found at ```/usr/include/hiredis```  
+
+## TPL binary serialization library
+
+```
+https://github.com/troydhanson/tpl.git  
+```
+
+Follow README instructions  

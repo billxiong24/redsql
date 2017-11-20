@@ -1,12 +1,17 @@
 #ifndef REDIS_API_H 
 #define REDIS_API_H
+
 #include <hiredis/hiredis.h>
 #include <inttypes.h>
 #include <stdbool.h>
 #include "../types.h"
+#include "../row/_priv_row.h"
+#include "../tpl.h"
+
+//TODO add support for async calls
 
 RES_ROWS *redis_read(redisContext *, char *query, ...);
-uint32_t redis_write(redisContext *, char *query, ...);
+uint32_t redis_write(redisContext *, char *key, RES_ROWS *rows, ...);
 
 /**
  * Initialize iterator for resultant redis query

@@ -32,7 +32,7 @@ struct RES_ROWS *gen_rows(int num_rows, int num_cols) {
         row.fields = malloc(sizeof(char *) * num_cols);
         for(int j = 0; j < num_cols; j++) {
             //NOTE arbitrary number for now
-            row.fields[j] = malloc(sizeof(char) * 10000);
+            row.fields[j] = malloc(sizeof(char) * 3000);
         }
         sql_rows->rows[i] = row;
     }
