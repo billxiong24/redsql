@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "redsql.h"
 #include "sql/sql_api.h"
+#include "redis/redis_api.h"
 #include <stdarg.h>
 #include "tpl.h"
 
@@ -190,64 +191,31 @@ int main(void) {
 
 
     RES_ROWS *sql_rows = read_query(mysql, query,  "0043e138f3a1daf9ccfbf718fc9acd48");
-    RES_ROWS_ITER *iter = sql_iter(sql_rows);
+    redisContext *c = redisConnect("127.0.0.1", 6379);
+    if(!c || c->err) {
+        fprintf(stderr, "Error connecting \n");
+    }
+    redis_write(c, "id1", sql_rows);
+    RES_ROWS *rows = redis_read(c, "id1");
+    RES_ROWS_ITER *iter = sql_iter(rows);
+    while(iter_has_next(iter)) {
+        char **next = res_row_next(iter);
+        for(int i = 0; i < iter_num_cols(iter); i++) {
+            puts(next[i]);
+        }
+    }
 
+    sql_iter_free(iter);
+    redisFree(c);
+
+    puts("--------------------------------");
+    iter = sql_iter(sql_rows);
     while(sql_iter_has_next(iter)) {
-        char **strs = sql_iter_next(iter);
-        for(int j = 0; j < sql_iter_num_cols(iter); j++) {
-            if(strs[j]) {
-                /*puts(strs[j]);*/
-            }
-            else {
-                /*puts("nulld");*/
-            }
+        char **next = res_row_next(iter);
+        for(int i = 0; i < sql_iter_num_cols(iter); i++) {
+            puts(next[i]);
         }
     }
-    sql_iter_reset(iter);
-
-    tpl_node *tn;
-
-    size_t num_cols = sql_iter_num_cols(iter);
-
-    char *str;
-    tn = tpl_map("A(A(s))", &str);
-
-    while(sql_iter_has_next(iter)) {
-        char **next = sql_iter_next(iter);
-        for(int i = 0; i < num_cols; i++) {
-            str = next[i];
-            if(str) {
-                tpl_pack(tn, 2);
-            }
-        }
-        //some lpush here
-        tpl_pack(tn, 1);
-    }
-    char *buff;
-    size_t size;
-    tpl_dump(tn, TPL_GETSIZE, &size);
-    tpl_dump(tn, TPL_MEM, &buff, &size);
-
-    for (int i = 0; i < size; i++) {
-        if(!buff[i]) {
-            putchar('%');
-        }
-        else {
-            putchar(buff[i]);
-        }
-    }
-
-    tpl_load(tn, TPL_MEM, buff, size);
-    puts("----------------------------------------------");
-    while(tpl_unpack(tn, 1) > 0) {
-        while(tpl_unpack(tn, 2) > 0) {
-            puts(str);
-            free(str);
-        }
-    }
-    free(buff);
-    tpl_free(tn);
-
     sql_iter_free(iter);
 
     /*for (int i = 0; i < get_num_rows(sql_rows); i++) {*/

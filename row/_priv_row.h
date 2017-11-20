@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include <stdbool.h>
+#include <mysql.h>
 
 /**
  * Simple encapsulation of a char ** for clarity
@@ -17,7 +18,6 @@
 typedef struct {
     char **fields;
 } ROW;
-
 
 /**
  * This struct stores resultant query information

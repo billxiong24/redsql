@@ -2,6 +2,8 @@
 #define REDIS_API_H
 
 #include <hiredis/hiredis.h>
+#include <stdlib.h>
+#include <string.h>
 #include <inttypes.h>
 #include <stdbool.h>
 #include "../types.h"
@@ -10,7 +12,7 @@
 
 //TODO add support for async calls
 
-RES_ROWS *redis_read(redisContext *, char *query, ...);
+RES_ROWS *redis_read(redisContext *, char *key);
 uint32_t redis_write(redisContext *, char *key, RES_ROWS *rows, ...);
 
 /**
