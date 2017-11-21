@@ -38,7 +38,7 @@ RES_ROWS *redis_read(redisContext *context, const char *key) {
     return NULL;
 }
 
-uint32_t redis_write(redisContext *context, const char *key, RES_ROWS *rows, ...) {
+uint32_t redis_write(redisContext *context, const char *key, RES_ROWS *rows) {
     //TODO FIX THIS MEMORY LEAK
     RES_ROWS_ITER *iter = res_row_iterator(rows);
     void *r = redisCommand(context, "DEL %s", key);

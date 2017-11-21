@@ -30,10 +30,10 @@ static MYSQL_RES *exec_query(MYSQL *mysql, const char *query, va_list args) {
     return mysql_store_result(mysql);
 }
 
-RES_ROWS *sql_read(MYSQL *mysql, const char *query, ...) {
+RES_ROWS *sql_read(MYSQL *mysql, const char *query, va_list args) {
 
-    va_list args;
-    va_start(args, query);
+    /*va_list args;*/
+    /*va_start(args, query);*/
 
     MYSQL_RES *result = exec_query(mysql, query, args);
 
@@ -55,10 +55,8 @@ RES_ROWS *sql_read(MYSQL *mysql, const char *query, ...) {
     return sql_rows;
 }
 
-uint32_t sql_write(MYSQL *mysql, const char *query, ...) {
+uint32_t sql_write(MYSQL *mysql, const char *query, va_list args) {
 
-    va_list args;
-    va_start(args, query);
 
     MYSQL_RES *result = exec_query(mysql, query, args);
     mysql_free_result(result);

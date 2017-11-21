@@ -177,37 +177,37 @@ int main(void) {
         /*exit(1);*/
     /*}*/
 
-    char *query = "SELECT id, chat_name, code, username, creator from Chat INNER JOIN MemberOf ON MemberOf.chat_id = Chat.id WHERE id = '%s'";
+    /*char *query = "SELECT id, chat_name, code, username, creator from Chat INNER JOIN MemberOf ON MemberOf.chat_id = Chat.id WHERE id = '%s'";*/
 
 
-    RES_ROWS *sql_rows = read_query(mysql, query,  "0043e138f3a1daf9ccfbf718fc9acd48");
-    redisContext *c = redisConnect("127.0.0.1", 6379);
-    if(!c || c->err) {
-        fprintf(stderr, "Error connecting \n");
-    }
-    redis_write(c, "id1", sql_rows);
-    RES_ROWS *rows = redis_read(c, "id1");
+    /*RES_ROWS *sql_rows = read_query(mysql, query,  "0043e138f3a1daf9ccfbf718fc9acd48");*/
+    /*redisContext *c = redisConnect("127.0.0.1", 6379);*/
+    /*if(!c || c->err) {*/
+        /*fprintf(stderr, "Error connecting \n");*/
+    /*}*/
+    /*redis_write(c, "id1", sql_rows);*/
+    /*RES_ROWS *rows = redis_read(c, "id1");*/
 
-    RES_ROWS_ITER *iter = redis_iter(rows);
-    while(redis_iter_has_next(iter)) {
-        char **next = redis_iter_next(iter);
-        for(int i = 0; i < redis_iter_num_cols(iter); i++) {
-            puts(next[i]);
-        }
-    }
+    /*RES_ROWS_ITER *iter = redis_iter(rows);*/
+    /*while(redis_iter_has_next(iter)) {*/
+        /*char **next = redis_iter_next(iter);*/
+        /*for(int i = 0; i < redis_iter_num_cols(iter); i++) {*/
+            /*puts(next[i]);*/
+        /*}*/
+    /*}*/
 
-    redis_iter_free(iter);
-    redisFree(c);
+    /*redis_iter_free(iter);*/
+    /*redisFree(c);*/
 
-    puts("--------------------------------");
-    iter = sql_iter(sql_rows);
-    while(sql_iter_has_next(iter)) {
-        char **next = res_row_next(iter);
-        for(int i = 0; i < sql_iter_num_cols(iter); i++) {
-            puts(next[i]);
-        }
-    }
-    sql_iter_free(iter);
+    /*puts("--------------------------------");*/
+    /*iter = sql_iter(sql_rows);*/
+    /*while(sql_iter_has_next(iter)) {*/
+        /*char **next = res_row_next(iter);*/
+        /*for(int i = 0; i < sql_iter_num_cols(iter); i++) {*/
+            /*puts(next[i]);*/
+        /*}*/
+    /*}*/
+    /*sql_iter_free(iter);*/
 
     /*for (int i = 0; i < get_num_rows(sql_rows); i++) {*/
         /*for(int j = 0; j < get_num_cols(sql_rows); j++) {*/

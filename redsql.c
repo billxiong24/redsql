@@ -21,6 +21,9 @@ RES_ROWS *read(struct redsql_conn *conn, const char *key, const char *query, boo
     redisContext *context = conn->context;
     RES_ROWS *rows;
 
+    va_list args;
+    va_start(args, cache);
+
     //check if key exists in redis
     redisReply *exists = redisCommand(context, "EXISTS %s", key);
     long long key_exists = 0L;
@@ -34,7 +37,7 @@ RES_ROWS *read(struct redsql_conn *conn, const char *key, const char *query, boo
     }
     else {
         //TODO pass in va_args here
-        rows = sql_read(mysql, query);
+        rows = sql_read(mysql, query, args);
         if(cache) {
             redis_write(context, key, rows);
         }
