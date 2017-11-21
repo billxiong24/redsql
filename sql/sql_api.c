@@ -12,7 +12,7 @@ static int err_check(MYSQL *mysql, int res) {
     return 0;
 }
 
-static MYSQL_RES *exec_query(MYSQL *mysql, char *query, va_list args) {
+static MYSQL_RES *exec_query(MYSQL *mysql, const char *query, va_list args) {
     va_list args_reuse;
     va_copy(args_reuse, args);
 
@@ -30,7 +30,7 @@ static MYSQL_RES *exec_query(MYSQL *mysql, char *query, va_list args) {
     return mysql_store_result(mysql);
 }
 
-RES_ROWS *read_query(MYSQL *mysql, char *query, ...) {
+RES_ROWS *sql_read(MYSQL *mysql, const char *query, ...) {
 
     va_list args;
     va_start(args, query);
@@ -55,7 +55,7 @@ RES_ROWS *read_query(MYSQL *mysql, char *query, ...) {
     return sql_rows;
 }
 
-uint32_t write_query(MYSQL *mysql, char *query, ...) {
+uint32_t sql_write(MYSQL *mysql, const char *query, ...) {
 
     va_list args;
     va_start(args, query);
@@ -65,7 +65,7 @@ uint32_t write_query(MYSQL *mysql, char *query, ...) {
     return mysql_affected_rows(mysql);
 }
 
-void stream_read_query(MYSQL *mysql, char *query, stream_func func, ...) {
+void sql_stream_read_query(MYSQL *mysql, const char *query, stream_func func, ...) {
     va_list args;
     va_start(args, func);
 

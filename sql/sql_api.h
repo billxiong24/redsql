@@ -16,19 +16,19 @@ typedef void (*stream_func)(MYSQL_ROW, size_t num_rows, size_t num_cols);
  * Any query to do with reading from database, i.e. SELECT, SHOW, DESCRIBE
  * returns the query result as an array of array of strings (char *)
  */
-RES_ROWS *read_query(MYSQL *mysql, char *query, ...);
+RES_ROWS *sql_read(MYSQL *mysql, const char *query, ...);
 
 /**
  * Any query to do with writing to database, i.e. INSERT, UPDATE, DELETE
  * returns number of affected rows
  */
-uint32_t write_query(MYSQL *mysql, char *query, ...);
+uint32_t sql_write(MYSQL *mysql, const char *query, ...);
 
 /**
  * Execute read query and stream results, takes in function to execute each row
  * as it is streamed through
  */
-void stream_read_query(MYSQL *mysql, char *query, stream_func func, ...);
+void sql_stream_read_query(MYSQL *mysql, const char *query, stream_func func, ...);
 
 /**
  * create an iterator for the resultant query

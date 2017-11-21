@@ -2,9 +2,9 @@
 
 //TODO add support for async calls
 
-const char *NULL_DELIM = "(*@#$*!@(($#";
+const char *NULL_DELIM = "(*@#$(*$W%9747(@*#$)*@#$(*$%&#$%*&__!@))#$*!@(($#";
 
-RES_ROWS *redis_read(redisContext *context, char *key) {
+RES_ROWS *redis_read(redisContext *context, const char *key) {
     redisReply *reply = redisCommand(context, "LRANGE %s 0 -1", key);
 
     if(reply->type == REDIS_REPLY_ARRAY) {
@@ -23,8 +23,6 @@ RES_ROWS *redis_read(redisContext *context, char *key) {
         RES_ROWS *res_rows = gen_rows(num_rows, num_cols);
         int counter = 0;
         for (int i = 0; i < num_rows; i++, counter++) {
-            char *str = reply->element[counter]->str;
-
             for(int j = 0; j < num_cols; j++) {
                 char *str = reply->element[counter]->str;
                 strncpy(res_rows->rows[i].fields[j], str, strlen(str));
@@ -40,7 +38,7 @@ RES_ROWS *redis_read(redisContext *context, char *key) {
     return NULL;
 }
 
-uint32_t redis_write(redisContext *context, char *key, RES_ROWS *rows, ...) {
+uint32_t redis_write(redisContext *context, const char *key, RES_ROWS *rows, ...) {
     //TODO FIX THIS MEMORY LEAK
     RES_ROWS_ITER *iter = res_row_iterator(rows);
     void *r = redisCommand(context, "DEL %s", key);
@@ -66,25 +64,25 @@ uint32_t redis_write(redisContext *context, char *key, RES_ROWS *rows, ...) {
 }
 
 struct RES_ROWS_ITER *redis_iter(struct RES_ROWS *rows) {
-    return NULL;
+    return res_row_iterator(rows);
 }
 
 char **redis_iter_next(struct RES_ROWS_ITER *iter) {
-    return NULL;
+    return res_row_next(iter);
 }
 
 bool redis_iter_has_next(struct RES_ROWS_ITER *iter) {
-    return false;
+    return iter_has_next(iter);
 }
 
 void redis_iter_reset(struct RES_ROWS_ITER *iter) {
-
+    reset_res_row(iter);
 }
 
 void redis_iter_free(struct RES_ROWS_ITER *iter) {
-
+    free_res_row_iter(iter);
 }
 
 size_t redis_iter_num_cols(struct RES_ROWS_ITER *iter) {
-    return 0;
+    return iter_num_cols(iter);
 }
