@@ -21,8 +21,8 @@ struct redsql_conn *establish_conn(char *sql_host, char *sql_user, char *sql_pas
  * Regular statements API
  */
 
-RES_ROWS *read(struct redsql_conn *conn, const char *key, const char *query, bool cache, ...);
-void write(struct redsql_conn *conn, const char *key, const char *query, bool cache, ...);
+RES_ROWS *redsql_read(struct redsql_conn *conn, const char *key, const char *query, bool cache, ...);
+void redsql_write(struct redsql_conn *conn, const char *key, const char *query, bool cache, ...);
 
 void free_redsql_conn(struct redsql_conn *conn);
 

@@ -41,12 +41,18 @@ RES_ROWS *sql_read(MYSQL *mysql, const char *query, va_list args) {
     int num_cols = mysql_num_fields(result);
 
     RES_ROWS *sql_rows = gen_rows(num_rows, num_cols);
-    
     MYSQL_ROW row;
     register int j = 0;
     while(row = mysql_fetch_row(result)) {
         for (int i = 0; i < num_cols; i++) {
-            strncpy(sql_rows->rows[j].fields[i], row[i], strlen(row[i]));
+            //XXX Remember to check if row[i] is NULL, stupid bug took forever
+            if(row[i]) {
+                size_t len = strlen(row[i]);
+                sql_rows->rows[j].fields[i] = malloc(sizeof(char) * len + 1);
+                strncpy(sql_rows->rows[j].fields[i], row[i], len);
+                //XXX For some reason the sql query result is not NUL terminated, idk why
+                sql_rows->rows[j].fields[i][len] = '\0';
+            }
         }
         j++;
     }

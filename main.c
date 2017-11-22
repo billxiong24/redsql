@@ -2,40 +2,42 @@
 #include "redsql.h"
 #include "sql/sql_api.h"
 #include "redis/redis_api.h"
-#include <stdarg.h>
-#include "tpl.h"
 
-/*int main(void) {*/
-    /*MYSQL *con = mysql_init(NULL);*/
-    
-    /*return 0;*/
-/*}*/
 #define STRING_SIZE 50
 
 #define DROP_SAMPLE_TABLE "DROP TABLE IF EXISTS test_table"
 #define CREATE_SAMPLE_TABLE "CREATE TABLE test_table(col1 INT,col2 VARCHAR(40),col3 SMALLINT, col4 TIMESTAMP)"
 #define INSERT_SAMPLE "INSERT INTO test_table(col1,col2,col3) VALUES(?,?,?)"
-void stream(MYSQL_ROW, size_t, size_t);
-
-void stream(MYSQL_ROW row, size_t num_rows, size_t num_cols) {
-    for (int i = 0; i < num_cols; i++) {
-        if(row[i]) {
-            puts(row[i]);
-        }
-        else {
-            puts("Nulld");
-        }
-    }
-}
 
 
 
 int main(void) {
-    MYSQL * mysql = mysql_init(NULL);
-    if (mysql_real_connect(mysql, "localhost", "root", "Chem1313#", "chatdb", 0, NULL, 0) == NULL) {
-        fprintf(stderr, "connection failed\n");
-        exit(1);
+    struct redsql_conn *conn;
+    conn = establish_conn("localhost", "root", "Chem1313#", "chatdb", "localhost", 6379);
+
+    char *query = "SELECT * FROM ChatLines";
+
+    RES_ROWS *rows = redsql_read(conn, "id", query, true);
+    RES_ROWS_ITER *iter = redis_iter(rows);
+    while(redis_iter_has_next(iter)) {
+        char **next = redis_iter_next(iter);
+
+        for(int i = 0; i < redis_iter_num_cols(iter); i++) {
+            if(next[i]) {
+                puts(next[i]);
+            }
+        }
     }
+    redis_iter_free(iter);
+    free_redsql_conn(conn);
+
+    /*MYSQL * mysql = mysql_init(NULL);*/
+
+    /*if (mysql_real_connect(mysql, "localhost", "root", "Chem1313#", "chatdb", 0, NULL, 0) == NULL) {*/
+        /*fprintf(stderr, "connection failed\n");*/
+        /*exit(1);*/
+    /*}*/
+    /*mysql_close(mysql);*/
     /*MYSQL_STMT    *stmt;*/
     /*MYSQL_BIND    bind[3];*/
     /*my_ulonglong  affected_rows;*/
@@ -264,6 +266,6 @@ int main(void) {
             /*printf("%s \n", row[i]);*/
         /*}*/
     /*}*/
-    mysql_close(mysql);
+    /*mysql_close(mysql);*/
     return 0;
 }

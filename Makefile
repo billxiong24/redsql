@@ -3,8 +3,8 @@ CC=gcc
 CFLAGS=-Wall
 EXEC=redsql
 
-redsql: redsql.c redsql.h sql/* row/* redis/* types.h tpl.h
-	$(CC) $(CFLAGS) -o $(EXEC)  lib/* main.c redis/redis_api.c sql/sql_api.c row/_priv_row.c `./bin/mysql_config --cflags --libs` -levent -lhiredis
+redsql: redsql.c redsql.h sql/* row/* redis/* types.h tpl.h main.c
+	$(CC) $(CFLAGS) -o $(EXEC)  lib/* main.c redsql.c redis/redis_api.c sql/sql_api.c row/_priv_row.c `./bin/mysql_config --cflags --libs` -levent -lhiredis
 
 clean:
 	-rm *.o $(EXEC) 

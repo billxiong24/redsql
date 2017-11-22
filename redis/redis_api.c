@@ -8,7 +8,8 @@ RES_ROWS *redis_read(redisContext *context, const char *key) {
     redisReply *reply = redisCommand(context, "LRANGE %s 0 -1", key);
 
     if(reply->type == REDIS_REPLY_ARRAY) {
-        int num_cols, num_rows;
+        int num_cols = 0;
+        int num_rows = 0;
         bool counted = false;
         
         for(int i = 0; i < reply->elements; i++) {
@@ -25,7 +26,13 @@ RES_ROWS *redis_read(redisContext *context, const char *key) {
         for (int i = 0; i < num_rows; i++, counter++) {
             for(int j = 0; j < num_cols; j++) {
                 char *str = reply->element[counter]->str;
-                strncpy(res_rows->rows[i].fields[j], str, strlen(str));
+                //XXX Always check that the string is not null!! stupid bug
+                if(str) {
+                    size_t len = strlen(str);
+                    res_rows->rows[i].fields[j] = malloc(sizeof(char) * len + 1);
+                    strncpy(res_rows->rows[i].fields[j], str, len);
+                    res_rows->rows[i].fields[j][len] = '\0';
+                }
                 counter++;
             }
         }

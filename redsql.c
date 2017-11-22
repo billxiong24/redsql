@@ -16,7 +16,7 @@ struct redsql_conn *establish_conn(char *sql_host, char *sql_user, char *sql_pas
     return conn;
 }
 
-RES_ROWS *read(struct redsql_conn *conn, const char *key, const char *query, bool cache, ...) {
+RES_ROWS *redsql_read(struct redsql_conn *conn, const char *key, const char *query, bool cache, ...) {
     MYSQL *mysql = conn->mysql;
     redisContext *context = conn->context;
     RES_ROWS *rows;
@@ -33,22 +33,27 @@ RES_ROWS *read(struct redsql_conn *conn, const char *key, const char *query, boo
     freeReplyObject(exists);
 
     if(key_exists && cache) {
+        puts("cache hit");
         return redis_read(context, key);
     }
     else {
         //TODO pass in va_args here
+        puts("cache miss");
         rows = sql_read(mysql, query, args);
         if(cache) {
+            puts("writing to query result to cache");
             redis_write(context, key, rows);
         }
         return rows;
     }
 }
 
-void write(struct redsql_conn *conn, const char *key, const char *query, bool cache, ...) {
+void redsql_write(struct redsql_conn *conn, const char *key, const char *query, bool cache, ...) {
 
 }
 
 void free_redsql_conn(struct redsql_conn *conn) {
-
+    mysql_close(conn->mysql);
+    redisFree(conn->context);
+    free(conn);
 }

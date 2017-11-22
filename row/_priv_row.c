@@ -1,5 +1,6 @@
 #include "_priv_row.h"
 #include <stdio.h>
+#include <string.h>
 
 static void free_sql_rows(struct RES_ROWS *sql_rows) {
     for (int i = 0; i < sql_rows->num_rows; i++) {
@@ -30,13 +31,12 @@ struct RES_ROWS *gen_rows(int num_rows, int num_cols) {
     for (int i = 0; i < num_rows; i++) {
         ROW row = sql_rows->rows[i];
         row.fields = malloc(sizeof(char *) * num_cols);
-        for(int j = 0; j < num_cols; j++) {
-            //NOTE arbitrary number for now
-            row.fields[j] = malloc(sizeof(char) * 3000);
-        }
+        /*for(int j = 0; j < num_cols; j++) {*/
+            /*//NOTE arbitrary number for now*/
+            /*row.fields[j] = malloc(sizeof(char) * 6000);*/
+        /*}*/
         sql_rows->rows[i] = row;
     }
-
     return sql_rows;
 }
 
