@@ -5,8 +5,9 @@ const char *QUERY_KEY = "query:";
 static void store_query(redisContext *context, const char *key, const char *query, va_list args_copy) {
     char *parsed_query = gen_query(query, args_copy);
 
-    redisCommand(context, "SET %s%s %s", QUERY_KEY, key, parsed_query);
+    void *rep = redisCommand(context, "SET %s%s %s", QUERY_KEY, key, parsed_query);
 
+    freeReplyObject(rep);
     free(parsed_query);
     va_end(args_copy);
 }
@@ -51,29 +52,38 @@ bool redsql_in_cache(struct redsql_conn *conn, const char *key) {
     }
 
     freeReplyObject(reply);
-    
     return res;
 }
 
 bool redsql_evict(struct redsql_conn *conn, const char *key) {
     redisContext *context = conn->context;
 
-    redisCommand(context, "MULTI");
-    redisCommand(context, "DEL %s", key);
-    redisCommand(context, "DEL %s%s", QUERY_KEY, key);
+    void *multi = redisCommand(context, "MULTI");
+    void *del_key = redisCommand(context, "DEL %s", key);
+    void *del_query_key = redisCommand(context, "DEL %s%s", QUERY_KEY, key);
     redisReply *reply = redisCommand(context, "EXEC");
+
+    bool res = true;
 
     if(reply->type == REDIS_REPLY_ARRAY) {
         for (int i = 0; i < reply->elements; i++) {
             redisReply *temp = reply->element[i];
             if(temp->type == REDIS_REPLY_INTEGER && temp->integer == 0) {
-                return false;
+                res = false;
+                break;
             }
         }
-        return true;
+    }
+    else {
+        res = false;
     }
 
-    return false;
+    freeReplyObject(multi);
+    freeReplyObject(del_key);
+    freeReplyObject(del_query_key);
+    freeReplyObject(reply);
+
+    return res;
 }
 
 RES_ROWS *redsql_read(struct redsql_conn *conn, const char *key, const char *query, bool cache, ...) {

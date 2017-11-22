@@ -67,6 +67,9 @@ uint32_t redis_write(redisContext *context, const char *key, RES_ROWS *rows) {
         freeReplyObject(reply);
         ++count;
     }
+
+    free(iter);
+
     return count;
 }
 

@@ -19,15 +19,23 @@ int main(void) {
 
     RES_ROWS *rows = redsql_read(conn, "id", query, true, 1);
     RES_ROWS_ITER *iter = redis_iter(rows);
-    while(redis_iter_has_next(iter)) {
-        char **next = redis_iter_next(iter);
+    /*while(redis_iter_has_next(iter)) {*/
+        /*char **next = redis_iter_next(iter);*/
 
-        for(int i = 0; i < redis_iter_num_cols(iter); i++) {
-            if(next[i]) {
-                puts(next[i]);
-            }
-        }
-    }
+        /*for(int i = 0; i < redis_iter_num_cols(iter); i++) {*/
+            /*if(next[i]) {*/
+                /*puts(next[i]);*/
+            /*}*/
+        /*}*/
+    /*}*/
+    bool in = redsql_in_cache(conn, "id");
+    printf("in = %d\n", in);
+    bool res = redsql_evict(conn, "id");
+    printf("res = %d\n", res);
+
+    in = redsql_in_cache(conn, "id");
+    printf("in = %d\n", in);
+
     redis_iter_free(iter);
     free_redsql_conn(conn);
 
