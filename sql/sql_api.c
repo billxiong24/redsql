@@ -13,27 +13,31 @@ static int err_check(MYSQL *mysql, int res) {
 }
 
 static MYSQL_RES *exec_query(MYSQL *mysql, const char *query, va_list args) {
-    va_list args_reuse;
-    va_copy(args_reuse, args);
 
-    int size = 1 + vsnprintf(NULL, 0, query, args);
-    char buffer[size];
-    //we now know the appropriate suze to allocate to avoid buffer overflow
-    vsnprintf(buffer, size, query, args_reuse);
-    va_end(args);
-    va_end(args_reuse);
+    char *buffer = gen_query(query, args);
 
     if(err_check(mysql, mysql_query(mysql, buffer))) {
         return NULL;
     }
 
+    free(buffer);
     return mysql_store_result(mysql);
 }
 
-RES_ROWS *sql_read(MYSQL *mysql, const char *query, va_list args) {
+char *gen_query(const char *query, va_list args) {
+    va_list args_reuse;
+    va_copy(args_reuse, args);
 
-    /*va_list args;*/
-    /*va_start(args, query);*/
+    int size = 1 + vsnprintf(NULL, 0, query, args);
+    char *buffer = malloc(sizeof(char) * size);
+    //we now know the appropriate suze to allocate to avoid buffer overflow
+    vsnprintf(buffer, size, query, args_reuse);
+    va_end(args);
+    va_end(args_reuse);
+    return buffer;
+}
+
+RES_ROWS *sql_read(MYSQL *mysql, const char *query, va_list args) {
 
     MYSQL_RES *result = exec_query(mysql, query, args);
 
@@ -49,11 +53,13 @@ RES_ROWS *sql_read(MYSQL *mysql, const char *query, va_list args) {
             if(row[i]) {
                 size_t len = strlen(row[i]);
                 sql_rows->rows[j].fields[i] = malloc(sizeof(char) * len + 1);
+
                 strncpy(sql_rows->rows[j].fields[i], row[i], len);
                 //XXX For some reason the sql query result is not NUL terminated, idk why
                 sql_rows->rows[j].fields[i][len] = '\0';
             }
         }
+
         j++;
     }
 

@@ -30,6 +30,7 @@ RES_ROWS *redsql_read(struct redsql_conn *conn, const char *key, const char *que
     if(exists->type == REDIS_REPLY_INTEGER) {
         key_exists = exists->integer;
     }
+
     freeReplyObject(exists);
 
     if(key_exists && cache) {
@@ -37,7 +38,6 @@ RES_ROWS *redsql_read(struct redsql_conn *conn, const char *key, const char *que
         return redis_read(context, key);
     }
     else {
-        //TODO pass in va_args here
         puts("cache miss");
         rows = sql_read(mysql, query, args);
         if(cache) {

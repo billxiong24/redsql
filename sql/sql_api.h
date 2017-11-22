@@ -13,6 +13,15 @@
 typedef void (*stream_func)(MYSQL_ROW, size_t num_rows, size_t num_cols);
 
 /**
+ * Given query format and variable argument list, generate parsed query
+ *
+ * @param query the formatted query to be parsed
+ * @param args the variable argument list passed in from another function
+ *
+ * @return A parsed, executable SQL query
+ */
+char *gen_query(const char *query, va_list args);
+/**
  * Any query to do with reading from database, i.e. SELECT, SHOW, DESCRIBE
  * returns the query result as an array of array of strings (char *)
  */
