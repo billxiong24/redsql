@@ -15,9 +15,9 @@ int main(void) {
     struct redsql_conn *conn;
     conn = establish_conn("localhost", "root", "Chem1313#", "chatdb", "localhost", 6379);
 
-    char *query = "SELECT * FROM ChatLines";
+    char *query = "SELECT * FROM ChatLines WHERE %d";
 
-    RES_ROWS *rows = redsql_read(conn, "id", query, true);
+    RES_ROWS *rows = redsql_read(conn, "id", query, true, 1);
     RES_ROWS_ITER *iter = redis_iter(rows);
     while(redis_iter_has_next(iter)) {
         char **next = redis_iter_next(iter);

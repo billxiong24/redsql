@@ -1,5 +1,16 @@
 #include "redsql.h"
 
+const char *QUERY_KEY = "query:";
+
+static void store_query(redisContext *context, const char *key, const char *query, va_list args_copy) {
+    char *parsed_query = gen_query(query, args_copy);
+
+    redisCommand(context, "SET %s%s %s", QUERY_KEY, key, parsed_query);
+
+    free(parsed_query);
+    va_end(args_copy);
+}
+
 struct redsql_conn *establish_conn(char *sql_host, char *sql_user, char *sql_pass, char *db, char *redis_host, unsigned int redis_port) {
     MYSQL *mysql = mysql_init(NULL);
 
@@ -19,10 +30,10 @@ struct redsql_conn *establish_conn(char *sql_host, char *sql_user, char *sql_pas
 RES_ROWS *redsql_read(struct redsql_conn *conn, const char *key, const char *query, bool cache, ...) {
     MYSQL *mysql = conn->mysql;
     redisContext *context = conn->context;
-    RES_ROWS *rows;
 
-    va_list args;
+    va_list args, args_copy;
     va_start(args, cache);
+    va_copy(args_copy, args);
 
     //check if key exists in redis
     redisReply *exists = redisCommand(context, "EXISTS %s", key);
@@ -39,11 +50,13 @@ RES_ROWS *redsql_read(struct redsql_conn *conn, const char *key, const char *que
     }
     else {
         puts("cache miss");
-        rows = sql_read(mysql, query, args);
+        RES_ROWS *rows = sql_read(mysql, query, args);
         if(cache) {
             puts("writing to query result to cache");
             redis_write(context, key, rows);
+            store_query(context, key, query, args_copy);
         }
+
         return rows;
     }
 }
