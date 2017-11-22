@@ -27,6 +27,55 @@ struct redsql_conn *establish_conn(char *sql_host, char *sql_user, char *sql_pas
     return conn;
 }
 
+char *redsql_get_stored_query(struct redsql_conn *conn, const char *key) {
+    redisContext *context = conn->context;
+    redisReply *reply = redisCommand(context, "GET %s", key);
+
+    char *str = NULL;
+    if(reply->type == REDIS_REPLY_STRING) {
+        str = reply->str;
+    }
+
+    freeReplyObject(reply);
+    return str;
+}
+
+bool redsql_in_cache(struct redsql_conn *conn, const char *key) {
+    redisContext *context = conn->context;
+    redisReply *reply = redisCommand(context, "EXISTS %s", key);
+
+    bool res = false;
+
+    if(reply->type == REDIS_REPLY_INTEGER) {
+        res = reply->integer == 1 ? true : false;
+    }
+
+    freeReplyObject(reply);
+    
+    return res;
+}
+
+bool redsql_evict(struct redsql_conn *conn, const char *key) {
+    redisContext *context = conn->context;
+
+    redisCommand(context, "MULTI");
+    redisCommand(context, "DEL %s", key);
+    redisCommand(context, "DEL %s%s", QUERY_KEY, key);
+    redisReply *reply = redisCommand(context, "EXEC");
+
+    if(reply->type == REDIS_REPLY_ARRAY) {
+        for (int i = 0; i < reply->elements; i++) {
+            redisReply *temp = reply->element[i];
+            if(temp->type == REDIS_REPLY_INTEGER && temp->integer == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    return false;
+}
+
 RES_ROWS *redsql_read(struct redsql_conn *conn, const char *key, const char *query, bool cache, ...) {
     MYSQL *mysql = conn->mysql;
     redisContext *context = conn->context;
