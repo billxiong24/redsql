@@ -25,6 +25,16 @@ struct redsql_conn *establish_conn(char *sql_host, char *sql_user, char *sql_pas
  * Regular statements API
  */
 
+/**
+ * Read query result from cache if present, else execute SQL query and store
+ * result in cache.
+ * @param key the key name to store in cache
+ * @param query the formatted query 
+ * @param cache whether or not to cache the query
+ *
+ * @return RES_ROWS struct pointer containing query results, which can be
+ * iterated using redsql_iterator
+ */
 RES_ROWS *redsql_read(struct redsql_conn *conn, const char *key, const char *query, bool cache, ...);
 
 void redsql_write(struct redsql_conn *conn, const char *key, const char *query, bool cache, ...);

@@ -121,6 +121,13 @@ RES_ROWS *redsql_read(struct redsql_conn *conn, const char *key, const char *que
 }
 
 void redsql_write(struct redsql_conn *conn, const char *key, const char *query, bool cache, ...) {
+    MYSQL *mysql = conn->mysql;
+    redisContext *context = conn->context;
+
+    va_list args, args_reuse;
+    va_start(args, cache);
+    va_copy(args_reuse, args);
+
 
 }
 

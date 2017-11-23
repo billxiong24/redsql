@@ -6,6 +6,11 @@
 #ifndef _PRIV_ROW_H
 #define _PRIV_ROW_H
 
+#define MYSQL_ROW_TYPE 0
+#define REDIS_ROW_TYPE 1
+
+#define ROW_TYPE unsigned char
+
 #include <stdlib.h>
 #include <inttypes.h>
 #include <stdbool.h>
@@ -24,9 +29,18 @@ typedef struct {
  */ 
 struct RES_ROWS {
     /**
-     * encapsulates a single row and its entries for each column
+     * defines row type- ROW is for redis results,
+     * MYSQL_RES Is for SQL query results
      */
-    ROW *rows;
+    union {
+        ROW *rows;
+        MYSQL_RES *sql_rows;
+    } row_types;
+    /**
+     * Tag to specify current variable used in the row_types union
+     */
+    ROW_TYPE type;
+
 
     /**
      * Number of rows in the resultant query, and number of columns in the table
@@ -43,6 +57,7 @@ struct RES_ROWS_ITER {
      * resultant query store
      */
     struct RES_ROWS *res_rows;
+
     /**
      * the current index that the iterator is on
      */
@@ -52,7 +67,7 @@ struct RES_ROWS_ITER {
 /**
  * initialize struct RES_ROWS * for use 
  */
-struct RES_ROWS *gen_rows(int num_rows, int num_cols);
+struct RES_ROWS *gen_rows(MYSQL_RES *, ROW_TYPE type, int num_rows, int num_cols);
 
 /**
  * initialize iterator for struct RES_ROWS *

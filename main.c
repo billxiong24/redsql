@@ -15,25 +15,27 @@ int main(void) {
     struct redsql_conn *conn;
     conn = establish_conn("localhost", "root", "Chem1313#", "chatdb", "localhost", 6379);
 
-    char *query = "SELECT * FROM ChatLines WHERE %d";
+    char *query = "SELECT id, chat_name, code, username, creator from Chat INNER JOIN MemberOf ON MemberOf.chat_id = Chat.id WHERE id = '%s'";
+    char *key = "users";
 
-    RES_ROWS *rows = redsql_read(conn, "id", query, true, 1);
+
+    RES_ROWS *rows = redsql_read(conn, key, query, true, "0043e138f3a1daf9ccfbf718fc9acd48");
     RES_ROWS_ITER *iter = redis_iter(rows);
-    /*while(redis_iter_has_next(iter)) {*/
-        /*char **next = redis_iter_next(iter);*/
-
-        /*for(int i = 0; i < redis_iter_num_cols(iter); i++) {*/
-            /*if(next[i]) {*/
+    while(redis_iter_has_next(iter)) {
+        char **next = redis_iter_next(iter);
+        for(int i = 0; i < redis_iter_num_cols(iter); i++) {
+            if(next[i]) {
                 /*puts(next[i]);*/
-            /*}*/
-        /*}*/
-    /*}*/
-    bool in = redsql_in_cache(conn, "id");
+            }
+        }
+    }
+
+    bool in = redsql_in_cache(conn, key);
     printf("in = %d\n", in);
-    bool res = redsql_evict(conn, "id");
+    bool res = redsql_evict(conn, key);
     printf("res = %d\n", res);
 
-    in = redsql_in_cache(conn, "id");
+    in = redsql_in_cache(conn, key);
     printf("in = %d\n", in);
 
     redis_iter_free(iter);

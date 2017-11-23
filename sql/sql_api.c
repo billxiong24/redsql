@@ -44,31 +44,11 @@ RES_ROWS *sql_read(MYSQL *mysql, const char *query, va_list args) {
     int num_rows = mysql_num_rows(result);
     int num_cols = mysql_num_fields(result);
 
-    RES_ROWS *sql_rows = gen_rows(num_rows, num_cols);
-    MYSQL_ROW row;
-    register int j = 0;
-    while(row = mysql_fetch_row(result)) {
-        for (int i = 0; i < num_cols; i++) {
-            //XXX Remember to check if row[i] is NULL, stupid bug took forever
-            if(row[i]) {
-                size_t len = strlen(row[i]);
-                sql_rows->rows[j].fields[i] = malloc(sizeof(char) * len + 1);
-
-                strncpy(sql_rows->rows[j].fields[i], row[i], len);
-                //XXX For some reason the sql query result is not NUL terminated, idk why
-                sql_rows->rows[j].fields[i][len] = '\0';
-            }
-        }
-
-        j++;
-    }
-
-    mysql_free_result(result);
+    RES_ROWS *sql_rows = gen_rows(result, MYSQL_ROW_TYPE, num_rows, num_cols);
     return sql_rows;
 }
 
 uint32_t sql_write(MYSQL *mysql, const char *query, va_list args) {
-
 
     MYSQL_RES *result = exec_query(mysql, query, args);
     mysql_free_result(result);
@@ -117,12 +97,12 @@ void sql_iter_free(struct RES_ROWS_ITER *iter) {
 }
 
 
-void print_res(struct RES_ROWS *sql_rows) {
-    for(int i = 0; i < sql_rows->num_rows; i++) {
-        char ** str= sql_rows->rows[i].fields;
-        for(int j = 0; j < sql_rows->num_cols; j++) {
-            puts(str[j]);
-        }
-    }
+/*void print_res(struct RES_ROWS *sql_rows) {*/
+    /*for(int i = 0; i < sql_rows->num_rows; i++) {*/
+        /*char ** str= sql_rows->rows[i].fields;*/
+        /*for(int j = 0; j < sql_rows->num_cols; j++) {*/
+            /*puts(str[j]);*/
+        /*}*/
+    /*}*/
 
-}
+/*}*/

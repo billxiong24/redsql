@@ -21,7 +21,7 @@ RES_ROWS *redis_read(redisContext *context, const char *key) {
                 num_cols++;
         }
 
-        RES_ROWS *res_rows = gen_rows(num_rows, num_cols);
+        RES_ROWS *res_rows = gen_rows(NULL, REDIS_ROW_TYPE, num_rows, num_cols);
         int counter = 0;
         for (int i = 0; i < num_rows; i++, counter++) {
             for(int j = 0; j < num_cols; j++) {
@@ -29,9 +29,9 @@ RES_ROWS *redis_read(redisContext *context, const char *key) {
                 //XXX Always check that the string is not null!! stupid bug
                 if(str) {
                     size_t len = strlen(str);
-                    res_rows->rows[i].fields[j] = malloc(sizeof(char) * len + 1);
-                    strncpy(res_rows->rows[i].fields[j], str, len);
-                    res_rows->rows[i].fields[j][len] = '\0';
+                    res_rows->row_types.rows[i].fields[j] = malloc(sizeof(char) * len + 1);
+                    strncpy(res_rows->row_types.rows[i].fields[j], str, len);
+                    res_rows->row_types.rows[i].fields[j][len] = '\0';
                 }
                 counter++;
             }
