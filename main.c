@@ -1,7 +1,5 @@
 #include <stdio.h>
 #include "redsql.h"
-#include "sql/sql_api.h"
-#include "redis/redis_api.h"
 
 #define STRING_SIZE 50
 
@@ -18,14 +16,16 @@ int main(void) {
     char *query = "SELECT id, chat_name, code, username, creator from Chat INNER JOIN MemberOf ON MemberOf.chat_id = Chat.id WHERE id = '%s'";
     char *key = "users";
 
+    query = "SELECT * FROM User";
 
-    RES_ROWS *rows = redsql_read(conn, key, query, true, "0043e138f3a1daf9ccfbf718fc9acd48");
+
+    RES_ROWS *rows = redsql_read(conn, key, query, true);
     RES_ROWS_ITER *iter = redis_iter(rows);
     while(redis_iter_has_next(iter)) {
         char **next = redis_iter_next(iter);
         for(int i = 0; i < redis_iter_num_cols(iter); i++) {
             if(next[i]) {
-                /*puts(next[i]);*/
+
             }
         }
     }

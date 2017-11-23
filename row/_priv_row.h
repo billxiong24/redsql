@@ -11,10 +11,14 @@
 
 #define ROW_TYPE unsigned char
 
+#define NULL_DELIM "(*@#$(*$W%9747(@*#$)*@#$(*$%&#$%*&__!@))#$*!@(($#"
+#define NULL_SYM "((NULL))"
+
 #include <stdlib.h>
 #include <inttypes.h>
 #include <stdbool.h>
 #include <mysql.h>
+
 
 /**
  * Simple encapsulation of a char ** for clarity

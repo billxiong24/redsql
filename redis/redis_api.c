@@ -1,8 +1,7 @@
 #include "redis_api.h"
+#include "../row/_priv_row.h"
 
 //TODO add support for async calls
-
-const char *NULL_DELIM = "(*@#$(*$W%9747(@*#$)*@#$(*$%&#$%*&__!@))#$*!@(($#";
 
 RES_ROWS *redis_read(redisContext *context, const char *key) {
     redisReply *reply = redisCommand(context, "LRANGE %s 0 -1", key);
@@ -59,6 +58,9 @@ uint32_t redis_write(redisContext *context, const char *key, RES_ROWS *rows) {
         char **next = res_row_next(iter);
         for(int i = 0; i < num_cols; i++) {
             char *str = next[i];
+            if(!str) {
+                str = NULL_SYM;
+            }
             void *reply = redisCommand(context, "RPUSH %s %s", key, str);
             freeReplyObject(reply);
         }

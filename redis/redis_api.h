@@ -7,8 +7,6 @@
 #include <inttypes.h>
 #include <stdbool.h>
 #include "../types.h"
-#include "../row/_priv_row.h"
-#include "../tpl.h"
 
 //TODO add support for async calls
 

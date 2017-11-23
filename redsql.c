@@ -1,3 +1,4 @@
+#include "row/_priv_row.h"
 #include "redsql.h"
 
 const char *QUERY_KEY = "query:";
