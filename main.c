@@ -54,6 +54,7 @@ int main(void) {
     printf("in = %d\n", in);
 
     redis_iter_free(iter);
+    
     free_redsql_conn(conn);
 
     /*MYSQL * mysql = mysql_init(NULL);*/

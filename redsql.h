@@ -36,7 +36,15 @@ struct redsql_conn *establish_conn(char *sql_host, char *sql_user, char *sql_pas
  */
 RES_ROWS *redsql_read(struct redsql_conn *conn, const char *key, const char *query, bool cache, ...);
 
-void redsql_write(struct redsql_conn *conn, const char *key, const char *query, bool cache, ...);
+/**
+ * Write a formatted query to MySQL database. Takes a list of keys impacted
+ * by the write, and evicts them from the redis cache.
+ * 
+ * @param evict_keys an array of keys to evict (passing in null will cause nothing to be evicted
+ * @param evict_size length of evict_keys (pass in 0 if evict_keys is null)
+ * @param query the formatted mysql query to execute
+ */
+void redsql_write(struct redsql_conn *conn, char *evict_keys[], size_t evict_size, const char *query, ...);
 
 /**
  * Returns the query associated with a specific key

@@ -13,6 +13,25 @@ static void store_query(redisContext *context, const char *key, const char *quer
     va_end(args_copy);
 }
 
+static unsigned int evict_from_cache(redisContext *context, char *keys[], size_t size) {
+    redisCommand(context, "MULTI");
+    for (int i = 0; i < size; i++) {
+       redisCommand(context, "DEL %s", keys[i]);
+    }
+    redisReply *reply = redisCommand(context, "EXEC");
+
+    unsigned int count = 0;
+    if(reply->type == REDIS_REPLY_ARRAY) {
+        for (int i = 0; i < reply->elements; i++) {
+            redisReply *temp = reply->element[i];
+            if(temp->type == REDIS_REPLY_INTEGER && temp->integer > 0) {
+                ++count;
+            }
+        }
+    }
+    return count;
+}
+
 struct redsql_conn *establish_conn(char *sql_host, char *sql_user, char *sql_pass, char *db, char *redis_host, unsigned int redis_port) {
     MYSQL *mysql = mysql_init(NULL);
 
@@ -68,6 +87,7 @@ bool redsql_evict(struct redsql_conn *conn, const char *key) {
 
     if(reply->type == REDIS_REPLY_ARRAY) {
         for (int i = 0; i < reply->elements; i++) {
+            //do not free, freeReplyObject takes care of nested replies
             redisReply *temp = reply->element[i];
             if(temp->type == REDIS_REPLY_INTEGER && temp->integer == 0) {
                 res = false;
@@ -121,15 +141,17 @@ RES_ROWS *redsql_read(struct redsql_conn *conn, const char *key, const char *que
     }
 }
 
-void redsql_write(struct redsql_conn *conn, const char *key, const char *query, bool cache, ...) {
+void redsql_write(struct redsql_conn *conn, char *evict_keys[], size_t evict_size, const char *query, ...) {
     MYSQL *mysql = conn->mysql;
     redisContext *context = conn->context;
 
-    va_list args, args_reuse;
-    va_start(args, cache);
-    va_copy(args_reuse, args);
+    va_list args;
+    va_start(args, query);
 
+    sql_write(mysql, query, args);
 
+    //evict list of keys
+    evict_from_cache(context, evict_keys, evict_size);
 }
 
 void free_redsql_conn(struct redsql_conn *conn) {
