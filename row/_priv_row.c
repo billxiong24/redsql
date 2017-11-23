@@ -47,23 +47,6 @@ struct RES_ROWS *gen_rows(MYSQL_RES *result, ROW_TYPE type, int num_rows, int nu
         rows->row_types.sql_rows = result;
     }
     return rows;
-    /*struct RES_ROWS *sql_rows = malloc(sizeof(*sql_rows));*/ 
-    /*sql_rows->num_rows = num_rows;*/
-    /*sql_rows->num_cols = num_cols;*/
-
-    /*sql_rows->rows = malloc(sizeof(ROW) * (num_rows));*/
-    
-    /*for (int i = 0; i < num_rows; i++) {*/
-        /*ROW row = sql_rows->rows[i];*/
-        /*row.fields = malloc(sizeof(char *) * num_cols);*/
-
-        /**
-         * NOTE only client knows length of string to allocate, 
-         * so we let client allocate string lengths for each column result
-         */
-        /*sql_rows->rows[i] = row;*/
-    /*}*/
-    /*return sql_rows;*/
 }
 
 struct RES_ROWS_ITER *res_row_iterator(struct RES_ROWS *res_rows) {
@@ -107,7 +90,7 @@ void reset_res_row(struct RES_ROWS_ITER *iter) {
 
     if(rows->type == MYSQL_ROW_TYPE) {
         MYSQL_RES *res = rows->row_types.sql_rows;
-        mysql_row_seek(res, 0);
+        mysql_data_seek(res, 0);
     }
 }
 

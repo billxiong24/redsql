@@ -32,6 +32,19 @@ int main(void) {
         }
     }
 
+    char *q= "SELECT id, chat_name, code, username, creator from Chat INNER JOIN MemberOf ON MemberOf.chat_id = Chat.id WHERE id = '%s'";
+
+    RES_ROWS *rows2 = redsql_read(conn, "wat", q, true, "0043e138f3a1daf9ccfbf718fc9acd48");
+    RES_ROWS_ITER *iter2 = redis_iter(rows2);
+    while(redis_iter_has_next(iter2)) {
+        redis_iter_next(iter2);
+    }
+
+    redis_iter_free(iter2);
+    redis_iter_reset(iter);
+    char **n = redis_iter_next(iter);
+    puts(n[0]);
+
     bool in = redsql_in_cache(conn, key);
     printf("in = %d\n", in);
     /*bool res = redsql_evict(conn, key);*/

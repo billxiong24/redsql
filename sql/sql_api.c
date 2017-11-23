@@ -95,14 +95,3 @@ size_t sql_iter_num_cols(struct RES_ROWS_ITER *iter) {
 void sql_iter_free(struct RES_ROWS_ITER *iter) {
     free_res_row_iter(iter);
 }
-
-
-/*void print_res(struct RES_ROWS *sql_rows) {*/
-    /*for(int i = 0; i < sql_rows->num_rows; i++) {*/
-        /*char ** str= sql_rows->rows[i].fields;*/
-        /*for(int j = 0; j < sql_rows->num_cols; j++) {*/
-            /*puts(str[j]);*/
-        /*}*/
-    /*}*/
-
-/*}*/
