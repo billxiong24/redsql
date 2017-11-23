@@ -14,14 +14,15 @@ static void free_sql_rows(struct RES_ROWS *sql_rows) {
             free(row.fields);
         }
 
+        //free the ROW *
         free(sql_rows->row_types.rows);
     }
 
     else {
         mysql_free_result(sql_rows->row_types.sql_rows);
-        free(sql_rows);
     }
 
+    free(sql_rows);
 }
 
 struct RES_ROWS *gen_rows(MYSQL_RES *result, ROW_TYPE type, int num_rows, int num_cols) {
