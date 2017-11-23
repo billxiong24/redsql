@@ -25,15 +25,17 @@ int main(void) {
         char **next = redis_iter_next(iter);
         for(int i = 0; i < redis_iter_num_cols(iter); i++) {
             if(next[i]) {
-
+            }
+            else {
+                puts("Nul");
             }
         }
     }
 
     bool in = redsql_in_cache(conn, key);
     printf("in = %d\n", in);
-    bool res = redsql_evict(conn, key);
-    printf("res = %d\n", res);
+    /*bool res = redsql_evict(conn, key);*/
+    /*printf("res = %d\n", res);*/
 
     in = redsql_in_cache(conn, key);
     printf("in = %d\n", in);

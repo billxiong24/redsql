@@ -6,42 +6,52 @@
 RES_ROWS *redis_read(redisContext *context, const char *key) {
     redisReply *reply = redisCommand(context, "LRANGE %s 0 -1", key);
 
-    if(reply->type == REDIS_REPLY_ARRAY) {
-        int num_cols = 0;
-        int num_rows = 0;
-        bool counted = false;
-        
-        for(int i = 0; i < reply->elements; i++) {
-            if(strcmp(reply->element[i]->str, NULL_DELIM) == 0) {
-                num_rows++;
-                counted = true;
-            }
-            if(!counted)
-                num_cols++;
-        }
-
-        RES_ROWS *res_rows = gen_rows(NULL, REDIS_ROW_TYPE, num_rows, num_cols);
-        int counter = 0;
-        for (int i = 0; i < num_rows; i++, counter++) {
-            for(int j = 0; j < num_cols; j++) {
-                char *str = reply->element[counter]->str;
-                //XXX Always check that the string is not null!! stupid bug
-                if(str) {
-                    size_t len = strlen(str);
-                    res_rows->row_types.rows[i].fields[j] = malloc(sizeof(char) * len + 1);
-                    strncpy(res_rows->row_types.rows[i].fields[j], str, len);
-                    res_rows->row_types.rows[i].fields[j][len] = '\0';
-                }
-                counter++;
-            }
-        }
-        
+    if(reply->type != REDIS_REPLY_ARRAY) {
         freeReplyObject(reply);
-        return res_rows;
+        return NULL;
+    }
+
+    int num_cols = 0;
+    int num_rows = 0;
+    bool counted = false;
+
+    //figure out number of rows and columns
+    for(int i = 0; i < reply->elements; i++) {
+        if(strcmp(reply->element[i]->str, NULL_DELIM) == 0) {
+            num_rows++;
+            counted = true;
+        }
+        if(!counted)
+            num_cols++;
+    }
+
+    RES_ROWS *res_rows = gen_rows(NULL, REDIS_ROW_TYPE, num_rows, num_cols);
+    int counter = 0;
+    for (int i = 0; i < num_rows; i++, counter++) {
+        for(int j = 0; j < num_cols; j++) {
+            char *str = reply->element[counter]->str;
+            //XXX Always check that the string is not null!! stupid bug
+            if(!str) {
+                counter++;
+                continue;
+            }
+            else if(strcmp(str, NULL_SYM) == 0) {
+                res_rows->row_types.rows[i].fields[j] = NULL;
+            }
+            else {
+                size_t len = strlen(str);
+                res_rows->row_types.rows[i].fields[j] = malloc(sizeof(char) * len + 1);
+                strncpy(res_rows->row_types.rows[i].fields[j], str, len);
+                res_rows->row_types.rows[i].fields[j][len] = '\0';
+
+            }
+
+            counter++;
+        }
     }
 
     freeReplyObject(reply);
-    return NULL;
+    return res_rows;
 }
 
 uint32_t redis_write(redisContext *context, const char *key, RES_ROWS *rows) {
