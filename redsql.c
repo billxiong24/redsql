@@ -13,14 +13,20 @@ static void store_query(redisContext *context, const char *key, const char *quer
     va_end(args_copy);
 }
 
-static unsigned int evict_from_cache(redisContext *context, char *keys[], size_t size) {
-    redisCommand(context, "MULTI");
+static unsigned long evict_from_cache(redisContext *context, const char *keys[], size_t size) {
+    void *mult = redisCommand(context, "MULTI");
+
     for (int i = 0; i < size; i++) {
-       redisCommand(context, "DEL %s", keys[i]);
+       void *del_key = redisCommand(context, "DEL %s", keys[i]);
+       void *del_quer = redisCommand(context, "DEL %s%s", QUERY_KEY, keys[i]);
+       freeReplyObject(del_key);
+       freeReplyObject(del_quer);
     }
+
+    freeReplyObject(mult);
     redisReply *reply = redisCommand(context, "EXEC");
 
-    unsigned int count = 0;
+    unsigned long count = 0L;
     if(reply->type == REDIS_REPLY_ARRAY) {
         for (int i = 0; i < reply->elements; i++) {
             redisReply *temp = reply->element[i];
@@ -29,7 +35,10 @@ static unsigned int evict_from_cache(redisContext *context, char *keys[], size_t
             }
         }
     }
-    return count;
+    freeReplyObject(reply);
+    //return count / 2 because deleting 2 keys for every query, want to
+    //return number of queries deleted from redis
+    return count / 2;
 }
 
 struct redsql_conn *establish_conn(char *sql_host, char *sql_user, char *sql_pass, char *db, char *redis_host, unsigned int redis_port) {
@@ -78,33 +87,11 @@ bool redsql_in_cache(struct redsql_conn *conn, const char *key) {
 bool redsql_evict(struct redsql_conn *conn, const char *key) {
     redisContext *context = conn->context;
 
-    void *multi = redisCommand(context, "MULTI");
-    void *del_key = redisCommand(context, "DEL %s", key);
-    void *del_query_key = redisCommand(context, "DEL %s%s", QUERY_KEY, key);
-    redisReply *reply = redisCommand(context, "EXEC");
+    const char *evict[1];
+    evict[0] = key;
 
-    bool res = true;
-
-    if(reply->type == REDIS_REPLY_ARRAY) {
-        for (int i = 0; i < reply->elements; i++) {
-            //do not free, freeReplyObject takes care of nested replies
-            redisReply *temp = reply->element[i];
-            if(temp->type == REDIS_REPLY_INTEGER && temp->integer == 0) {
-                res = false;
-                break;
-            }
-        }
-    }
-    else {
-        res = false;
-    }
-
-    freeReplyObject(multi);
-    freeReplyObject(del_key);
-    freeReplyObject(del_query_key);
-    freeReplyObject(reply);
-
-    return res;
+    unsigned long res = evict_from_cache(context, evict, 1);
+    return res > 0;
 }
 
 RES_ROWS *redsql_read(struct redsql_conn *conn, const char *key, const char *query, bool cache, ...) {
@@ -141,7 +128,7 @@ RES_ROWS *redsql_read(struct redsql_conn *conn, const char *key, const char *que
     }
 }
 
-void redsql_write(struct redsql_conn *conn, char *evict_keys[], size_t evict_size, const char *query, ...) {
+unsigned long redsql_write(struct redsql_conn *conn, const char *evict_keys[], size_t evict_size, const char *query, ...) {
     MYSQL *mysql = conn->mysql;
     redisContext *context = conn->context;
 
@@ -151,7 +138,11 @@ void redsql_write(struct redsql_conn *conn, char *evict_keys[], size_t evict_siz
     sql_write(mysql, query, args);
 
     //evict list of keys
-    evict_from_cache(context, evict_keys, evict_size);
+    if(evict_keys) {
+        return evict_from_cache(context, evict_keys, evict_size);
+    }
+
+    return 0L;
 }
 
 void free_redsql_conn(struct redsql_conn *conn) {

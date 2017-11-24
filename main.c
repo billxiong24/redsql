@@ -55,6 +55,12 @@ int main(void) {
 
     redis_iter_free(iter);
     
+    const char *evict[] = {
+        "users",
+        "wat"
+    };
+    unsigned long num = redsql_write(conn, evict, 2, "SELECT * FROM User");
+    printf("num = %d\n", num);
     free_redsql_conn(conn);
 
     /*MYSQL * mysql = mysql_init(NULL);*/

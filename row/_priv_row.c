@@ -76,7 +76,7 @@ char **res_row_next(struct RES_ROWS_ITER *iter) {
         MYSQL_RES *res = rows->row_types.sql_rows;
         MYSQL_ROW row = mysql_fetch_row(res);
         iter->index++;
-        return row;
+        return (char **) row;
     }
 }
 

@@ -43,8 +43,10 @@ RES_ROWS *redsql_read(struct redsql_conn *conn, const char *key, const char *que
  * @param evict_keys an array of keys to evict (passing in null will cause nothing to be evicted
  * @param evict_size length of evict_keys (pass in 0 if evict_keys is null)
  * @param query the formatted mysql query to execute
+ *
+ * @return number of 
  */
-void redsql_write(struct redsql_conn *conn, char *evict_keys[], size_t evict_size, const char *query, ...);
+unsigned long redsql_write(struct redsql_conn *conn, const char *evict_keys[], size_t evict_size, const char *query, ...);
 
 /**
  * Returns the query associated with a specific key
