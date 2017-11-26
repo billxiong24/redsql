@@ -19,30 +19,30 @@ int main(void) {
 
 
     RES_ROWS *rows = redsql_read(conn, key, query, true);
-    RES_ROWS_ITER *iter = redis_iter(rows);
-    while(redis_iter_has_next(iter)) {
-        char **next = redis_iter_next(iter);
-        for(int i = 0; i < redis_iter_num_cols(iter); i++) {
-            if(next[i]) {
-            }
-            else {
-                puts("Nul");
-            }
-        }
-    }
+    /*RES_ROWS_ITER *iter = redis_iter(rows);*/
+    /*while(redis_iter_has_next(iter)) {*/
+        /*char **next = redis_iter_next(iter);*/
+        /*for(int i = 0; i < redis_iter_num_cols(iter); i++) {*/
+            /*if(next[i]) {*/
+            /*}*/
+            /*else {*/
+                /*puts("Nul");*/
+            /*}*/
+        /*}*/
+    /*}*/
 
-    char *q= "SELECT id, chat_name, code, username, creator from Chat INNER JOIN MemberOf ON MemberOf.chat_id = Chat.id WHERE id = '%s'";
+    /*char *q= "SELECT id, chat_name, code, username, creator from Chat INNER JOIN MemberOf ON MemberOf.chat_id = Chat.id WHERE id = '%s'";*/
 
-    RES_ROWS *rows2 = redsql_read(conn, "wat", q, true, "0043e138f3a1daf9ccfbf718fc9acd48");
-    RES_ROWS_ITER *iter2 = redis_iter(rows2);
-    while(redis_iter_has_next(iter2)) {
-        redis_iter_next(iter2);
-    }
+    /*RES_ROWS *rows2 = redsql_read(conn, "wat", q, true, "0043e138f3a1daf9ccfbf718fc9acd48");*/
+    /*RES_ROWS_ITER *iter2 = redis_iter(rows2);*/
+    /*while(redis_iter_has_next(iter2)) {*/
+        /*redis_iter_next(iter2);*/
+    /*}*/
 
-    redis_iter_free(iter2);
-    redis_iter_reset(iter);
-    char **n = redis_iter_next(iter);
-    puts(n[0]);
+    /*redis_iter_free(iter2);*/
+    /*redis_iter_reset(iter);*/
+    /*char **n = redis_iter_next(iter);*/
+    /*puts(n[0]);*/
 
     bool in = redsql_in_cache(conn, key);
     printf("in = %d\n", in);
@@ -52,14 +52,14 @@ int main(void) {
     in = redsql_in_cache(conn, key);
     printf("in = %d\n", in);
 
-    redis_iter_free(iter);
+    /*sql_iter_free(iter);*/
     
     const char *evict[] = {
         "users",
         "wat"
     };
-    unsigned long num = redsql_write(conn, evict, 2, "SELECT * FROM User");
-    printf("num = %d\n", num);
+    /*unsigned long num = redsql_write(conn, evict, 2, "SELECT * FROM User");*/
+    /*printf("num = %d\n", num);*/
     free_redsql_conn(conn);
 
     /*MYSQL * mysql = mysql_init(NULL);*/

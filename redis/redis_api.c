@@ -1,5 +1,6 @@
 #include "redis_api.h"
 #include "../row/_priv_row.h"
+#include "../row/_priv_row_redis.h"
 
 //TODO add support for async calls
 
@@ -25,7 +26,7 @@ RES_ROWS *redis_read(redisContext *context, const char *key) {
             num_cols++;
     }
 
-    RES_ROWS *res_rows = gen_rows(NULL, REDIS_ROW_TYPE, num_rows, num_cols);
+    RES_ROWS *res_rows = redis_gen_rows(NULL, num_rows, num_cols);
     int counter = 0;
     for (int i = 0; i < num_rows; i++, counter++) {
         for(int j = 0; j < num_cols; j++) {
@@ -56,7 +57,7 @@ RES_ROWS *redis_read(redisContext *context, const char *key) {
 
 uint32_t redis_write(redisContext *context, const char *key, RES_ROWS *rows) {
     //TODO FIX THIS MEMORY LEAK
-    RES_ROWS_ITER *iter = res_row_iterator(rows);
+    RES_ROWS_ITER *iter = (RES_ROWS_ITER *) redis_iter_init(rows);
     void *r = redisCommand(context, "DEL %s", key);
     freeReplyObject(r);
 
@@ -85,26 +86,26 @@ uint32_t redis_write(redisContext *context, const char *key, RES_ROWS *rows) {
     return count;
 }
 
-struct RES_ROWS_ITER *redis_iter(struct RES_ROWS *rows) {
-    return res_row_iterator(rows);
-}
+/*struct RES_ROWS_ITER *redis_iter(struct RES_ROWS *rows) {*/
+    /*return res_row_iterator(rows);*/
+/*}*/
 
-char **redis_iter_next(struct RES_ROWS_ITER *iter) {
-    return res_row_next(iter);
-}
+/*char **redis_iter_next(struct RES_ROWS_ITER *iter) {*/
+    /*return res_row_next(iter);*/
+/*}*/
 
-bool redis_iter_has_next(struct RES_ROWS_ITER *iter) {
-    return iter_has_next(iter);
-}
+/*bool redis_iter_has_next(struct RES_ROWS_ITER *iter) {*/
+    /*return iter_has_next(iter);*/
+/*}*/
 
-void redis_iter_reset(struct RES_ROWS_ITER *iter) {
-    reset_res_row(iter);
-}
+/*void redis_iter_reset(struct RES_ROWS_ITER *iter) {*/
+    /*reset_res_row(iter);*/
+/*}*/
 
-void redis_iter_free(struct RES_ROWS_ITER *iter) {
-    free_res_row_iter(iter);
-}
+/*void redis_iter_free(struct RES_ROWS_ITER *iter) {*/
+    /*free_res_row_iter(iter);*/
+/*}*/
 
-size_t redis_iter_num_cols(struct RES_ROWS_ITER *iter) {
-    return iter_num_cols(iter);
-}
+/*size_t redis_iter_num_cols(struct RES_ROWS_ITER *iter) {*/
+    /*return iter_num_cols(iter);*/
+/*}*/

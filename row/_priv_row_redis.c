@@ -1,6 +1,5 @@
 #include "_priv_row_redis.h"
 
-
 struct RES_ROWS *redis_gen_rows(MYSQL_RES *result, int num_rows, int num_cols) {
 
     struct RES_ROWS *rows = malloc(sizeof(*rows));

@@ -11,7 +11,6 @@ struct REDIS_RES_ROWS_ITER {
  */
 struct REDIS_RES_ROWS_ITER * redis_iter_init(struct RES_ROWS *);
 
-
 struct RES_ROWS *redis_gen_rows(MYSQL_RES *, int num_rows, int num_cols);
 
 char **redis_iter_next(struct REDIS_RES_ROWS_ITER *);
