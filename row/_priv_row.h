@@ -57,6 +57,11 @@ struct RES_ROWS {
  */
 struct RES_ROWS_ITER {
     /**
+     * Pointer to VTABLE for subclasses to access and override with 
+     * custom functions
+     */
+    struct RES_ROW_VTABLE *vtable;
+    /**
      * resultant query store
      */
     struct RES_ROWS *res_rows;
@@ -66,6 +71,58 @@ struct RES_ROWS_ITER {
      */
     uint32_t index;
 };
+
+/**
+ * Virtual function table for struct RES_ROWS_ITER,
+ * allows subclasses to inherit and implement methods
+ */
+
+struct RES_ROW_VTABLE {
+    /**
+     * initialize struct RES_ROWS * for use 
+     */
+    struct RES_ROWS * (*gen_rows)(MYSQL_RES *, int num_rows, int num_cols);
+
+    /**
+     * This is sort of like a constructor
+     */
+    //struct RES_ROWS_ITER *(*res_row_iterator)(struct RES_ROWS *);
+
+    /**
+     * return the next element in the resultant query struct (struct RES_ROWS *)
+     */
+    char **(*res_row_next)(struct RES_ROWS_ITER *);
+
+    /**
+     * return true if there is another element to be iterated over, else false
+     */
+    bool (*iter_has_next)(struct RES_ROWS_ITER *);
+
+    /**
+     * reset iterator to the beginning element
+     */
+    void (*reset_res_row)(struct RES_ROWS_ITER *);
+
+    /**
+     * destructor for iterator for resultant query
+     */
+    void (*free_res_row_iter)(struct RES_ROWS_ITER *);
+
+    /**
+     * returns the number of rows in resultant query
+     */
+    size_t (*iter_num_rows)(struct RES_ROWS_ITER *);
+
+    /**
+     * returns the number of fields in the table of the resultant query
+     */
+    size_t (*iter_num_cols)(struct RES_ROWS_ITER *);
+};
+
+//XXX very unsafe, find better way to do this
+#define RES_ROW_ITER_FUNC(res_row_iter, func) (\
+        res_row_iter->vtable->func(res_row_iter)\
+        )
 
 /**
  * initialize struct RES_ROWS * for use 
