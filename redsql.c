@@ -120,7 +120,6 @@ RES_ROWS_ITER *redsql_read(struct redsql_conn *conn, const char *key, const char
        
         RES_ROWS_ITER *iter = sql_read(mysql, query, args);
 
-        RES_ROWS *rows = RES_ROW_ITER_FUNC(iter, iter_get_rows);
         if(cache) {
             puts("writing to query result to cache");
             redis_write(context, key, iter);

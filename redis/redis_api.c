@@ -57,8 +57,6 @@ RES_ROWS_ITER *redis_read(redisContext *context, const char *key) {
 }
 
 uint32_t redis_write(redisContext *context, const char *key, RES_ROWS_ITER *iter) {
-    //TODO FIX THIS MEMORY LEAK
-    /*RES_ROWS_ITER *iter = (RES_ROWS_ITER *) sql_iter_init(rows);*/
     void *r = redisCommand(context, "DEL %s", key);
     freeReplyObject(r);
 
@@ -88,27 +86,3 @@ uint32_t redis_write(redisContext *context, const char *key, RES_ROWS_ITER *iter
     RES_ROW_ITER_FUNC(iter, reset_res_row);
     return count;
 }
-
-/*struct RES_ROWS_ITER *redis_iter(struct RES_ROWS *rows) {*/
-    /*return res_row_iterator(rows);*/
-/*}*/
-
-/*char **redis_iter_next(struct RES_ROWS_ITER *iter) {*/
-    /*return res_row_next(iter);*/
-/*}*/
-
-/*bool redis_iter_has_next(struct RES_ROWS_ITER *iter) {*/
-    /*return iter_has_next(iter);*/
-/*}*/
-
-/*void redis_iter_reset(struct RES_ROWS_ITER *iter) {*/
-    /*reset_res_row(iter);*/
-/*}*/
-
-/*void redis_iter_free(struct RES_ROWS_ITER *iter) {*/
-    /*free_res_row_iter(iter);*/
-/*}*/
-
-/*size_t redis_iter_num_cols(struct RES_ROWS_ITER *iter) {*/
-    /*return iter_num_cols(iter);*/
-/*}*/

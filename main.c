@@ -20,12 +20,12 @@ int main(void) {
 
     RES_ROWS_ITER *iter = redsql_read(conn, key, query, true);
     while(RES_ROW_ITER_FUNC(iter, iter_has_next)) {
-        char **next = res_row_next(iter);
+        char **next = RES_ROW_ITER_FUNC(iter, res_row_next);
 
         /*char **next = redis_iter_next(iter);*/
         for(int i = 0; i < RES_ROW_ITER_FUNC(iter, iter_num_cols); i++) {
             if(next[i]) {
-                /*puts(next[i]);*/
+                puts(next[i]);
             }
             else {
                 puts("Nul");
@@ -54,7 +54,7 @@ int main(void) {
     in = redsql_in_cache(conn, key);
     printf("in = %d\n", in);
 
-    /*sql_iter_free(iter);*/
+    RES_ROW_ITER_FUNC(iter, free_res_row_iter);
     
     const char *evict[] = {
         "users",

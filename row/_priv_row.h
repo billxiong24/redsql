@@ -74,7 +74,7 @@ struct RES_ROWS_ITER {
 
 /**
  * Virtual function table for struct RES_ROWS_ITER,
- * allows subclasses to inherit and implement methods
+ * allows subclasses to inherit methods and implement "abstract"  methods
  */
 
 struct RES_ROW_VTABLE {
@@ -82,8 +82,6 @@ struct RES_ROW_VTABLE {
      * initialize struct RES_ROWS * for use 
      */
     struct RES_ROWS * (*gen_rows)(MYSQL_RES *, int num_rows, int num_cols);
-
-    struct RES_ROWS *(*iter_get_rows)(struct RES_ROWS_ITER *);
 
     /**
      * return the next element in the resultant query struct (struct RES_ROWS *)
@@ -125,8 +123,6 @@ struct RES_ROW_VTABLE {
  * initialize struct RES_ROWS * for use 
  */
 struct RES_ROWS *gen_rows(MYSQL_RES *, ROW_TYPE type, int num_rows, int num_cols);
-
-struct RES_ROWS *iter_get_rows(struct RES_ROWS_ITER *);
 
 /**
  * initialize iterator for struct RES_ROWS *

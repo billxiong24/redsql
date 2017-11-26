@@ -40,39 +40,4 @@ uint32_t sql_write(MYSQL *mysql, const char *query, va_list args);
  */
 void sql_stream_read_query(MYSQL *mysql, const char *query, stream_func func, ...);
 
-/**
- * create an iterator for the resultant query
- */
-//struct RES_ROWS_ITER *sql_iter(struct RES_ROWS *);
-
-/**
- * return the next element in the resultant query struct (struct RES_ROWS *)
- */
-//char **sql_iter_next(struct RES_ROWS_ITER *);
-
-/**
- * return true if there is another element to be iterated over, else false
- */
-//bool sql_iter_has_next(struct RES_ROWS_ITER *);
-
-/**
- * reset iterator to the beginning element
- */
-//void sql_iter_reset(struct RES_ROWS_ITER *);
-
-/**
- * destructor for iterator for resultant query
- */
-//void sql_iter_free(struct RES_ROWS_ITER *);
-
-/**
- * return the number of fields in resultant query's table.
- */
-//size_t sql_iter_num_cols(struct RES_ROWS_ITER *);
-
-/**
- * debugging purposes
- */
-//void print_res(struct RES_ROWS *);
-
 #endif

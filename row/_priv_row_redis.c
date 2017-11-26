@@ -58,7 +58,6 @@ void redis_iter_free(struct REDIS_RES_ROWS_ITER *iter) {
 //put this at the end for now
 struct RES_ROW_VTABLE redis_vtable = {
     &redis_gen_rows,
-    &iter_get_rows,
     (char **(*)(struct RES_ROWS_ITER *)) &redis_iter_next,
     &iter_has_next,
     (void (*)(struct RES_ROWS_ITER *)) &redis_iter_reset,
