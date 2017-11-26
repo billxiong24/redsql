@@ -47,6 +47,7 @@ RES_ROWS_ITER *sql_read(MYSQL *mysql, const char *query, va_list args) {
 
     RES_ROWS *sql_rows = sql_gen_rows(result, num_rows, num_cols);
     RES_ROWS_ITER *iter = (RES_ROWS_ITER *) sql_iter_init(sql_rows);
+
     return iter;
 }
 

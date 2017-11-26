@@ -50,6 +50,10 @@ struct RES_ROWS *gen_rows(MYSQL_RES *result, ROW_TYPE type, int num_rows, int nu
     return rows;
 }
 
+struct RES_ROWS *iter_get_rows(struct RES_ROWS_ITER *iter) {
+    return iter->res_rows;
+}
+
 struct RES_ROWS_ITER *res_row_iterator(struct RES_ROWS *res_rows) {
     struct RES_ROWS_ITER *iter = malloc(sizeof(*iter));
     iter->res_rows = res_rows;

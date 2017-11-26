@@ -1,4 +1,5 @@
 #include "_priv_row_sql.h"
+#include <stdio.h>
 
 struct RES_ROWS *sql_gen_rows(MYSQL_RES *result, int num_rows, int num_cols) {
     struct RES_ROWS *rows = malloc(sizeof(*rows));
@@ -16,6 +17,7 @@ char **sql_iter_next(struct SQL_RES_ROWS_ITER *iter) {
     MYSQL_RES *res = rows->row_types.sql_rows;
     MYSQL_ROW row = mysql_fetch_row(res);
     iter->super.index++;
+
     return (char **) row;
 }
 
@@ -36,6 +38,7 @@ void sql_iter_free(struct SQL_RES_ROWS_ITER *iter) {
 struct RES_ROW_VTABLE sql_vtable = {
 
     &sql_gen_rows,
+    &iter_get_rows,
     (char **(*)(struct RES_ROWS_ITER *)) &sql_iter_next,
     &iter_has_next,
     (void (*)(struct RES_ROWS_ITER *)) &sql_iter_reset,

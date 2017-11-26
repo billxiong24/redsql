@@ -1,5 +1,6 @@
 #include "redis_api.h"
 #include "../row/_priv_row_redis.h"
+#include "../row/_priv_row_sql.h"
 //TODO add support for async calls
 
 RES_ROWS_ITER *redis_read(redisContext *context, const char *key) {
@@ -55,18 +56,18 @@ RES_ROWS_ITER *redis_read(redisContext *context, const char *key) {
     return (RES_ROWS_ITER *) iter;
 }
 
-uint32_t redis_write(redisContext *context, const char *key, RES_ROWS *rows) {
+uint32_t redis_write(redisContext *context, const char *key, RES_ROWS_ITER *iter) {
     //TODO FIX THIS MEMORY LEAK
-    RES_ROWS_ITER *iter = (RES_ROWS_ITER *) redis_iter_init(rows);
+    /*RES_ROWS_ITER *iter = (RES_ROWS_ITER *) sql_iter_init(rows);*/
     void *r = redisCommand(context, "DEL %s", key);
     freeReplyObject(r);
 
-    size_t num_cols = iter_num_cols(iter);
+    size_t num_cols = RES_ROW_ITER_FUNC(iter, iter_num_cols);
 
     register int count = 0;
 
-    while(iter_has_next(iter)) {
-        char **next = res_row_next(iter);
+    while(RES_ROW_ITER_FUNC(iter, iter_has_next)) {
+        char **next = RES_ROW_ITER_FUNC(iter, res_row_next);
         for(int i = 0; i < num_cols; i++) {
             char *str = next[i];
             if(!str) {
@@ -81,8 +82,10 @@ uint32_t redis_write(redisContext *context, const char *key, RES_ROWS *rows) {
         ++count;
     }
 
-    free(iter);
+    //make sure to not free this iter, bc it will be returned, just using it
+    //this saves memory, since we do not duplicate iterator, just use it
 
+    RES_ROW_ITER_FUNC(iter, reset_res_row);
     return count;
 }
 

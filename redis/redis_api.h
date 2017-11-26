@@ -12,7 +12,7 @@
 //TODO add support for async calls
 
 RES_ROWS_ITER *redis_read(redisContext *, const char *key);
-uint32_t redis_write(redisContext *, const char *key, RES_ROWS *rows);
+uint32_t redis_write(redisContext *, const char *key, RES_ROWS_ITER *rows);
 
 /**
  * Initialize iterator for resultant redis query

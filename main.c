@@ -20,7 +20,7 @@ int main(void) {
 
     RES_ROWS_ITER *iter = redsql_read(conn, key, query, true);
     while(RES_ROW_ITER_FUNC(iter, iter_has_next)) {
-        char **next = RES_ROW_ITER_FUNC(iter, res_row_next);
+        char **next = res_row_next(iter);
 
         /*char **next = redis_iter_next(iter);*/
         for(int i = 0; i < RES_ROW_ITER_FUNC(iter, iter_num_cols); i++) {
