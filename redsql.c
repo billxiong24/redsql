@@ -1,7 +1,7 @@
 #include "row/_priv_row.h"
 #include "redsql.h"
 
-const char *QUERY_KEY = "query:";
+#define QUERY_KEY "query:"
 
 static void store_query(redisContext *context, const char *key, const char *query, va_list args_copy) {
     char *parsed_query = gen_query(query, args_copy);

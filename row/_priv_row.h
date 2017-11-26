@@ -19,7 +19,6 @@
 #include <stdbool.h>
 #include <mysql.h>
 
-
 /**
  * Simple encapsulation of a char ** for clarity
  * In this case, char ** is an array of strings
@@ -107,4 +106,5 @@ size_t iter_num_rows(struct RES_ROWS_ITER *);
  * returns the number of fields in the table of the resultant query
  */
 size_t iter_num_cols(struct RES_ROWS_ITER *);
+
 #endif

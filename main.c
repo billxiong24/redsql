@@ -7,9 +7,8 @@
 #define CREATE_SAMPLE_TABLE "CREATE TABLE test_table(col1 INT,col2 VARCHAR(40),col3 SMALLINT, col4 TIMESTAMP)"
 #define INSERT_SAMPLE "INSERT INTO test_table(col1,col2,col3) VALUES(?,?,?)"
 
-
-
 int main(void) {
+
     struct redsql_conn *conn;
     conn = establish_conn("localhost", "root", "Chem1313#", "chatdb", "localhost", 6379);
 
