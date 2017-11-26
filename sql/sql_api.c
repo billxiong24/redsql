@@ -1,6 +1,7 @@
 #include <stdarg.h>
 #include "sql_api.h"
 #include "_priv_sql_api.h"
+#include "../row/_priv_row_sql.h"
 
 static int err_check(MYSQL *mysql, int res) {
     if(res) {
@@ -37,15 +38,16 @@ char *gen_query(const char *query, va_list args) {
     return buffer;
 }
 
-RES_ROWS *sql_read(MYSQL *mysql, const char *query, va_list args) {
+RES_ROWS_ITER *sql_read(MYSQL *mysql, const char *query, va_list args) {
 
     MYSQL_RES *result = exec_query(mysql, query, args);
 
     int num_rows = mysql_num_rows(result);
     int num_cols = mysql_num_fields(result);
 
-    RES_ROWS *sql_rows = gen_rows(result, MYSQL_ROW_TYPE, num_rows, num_cols);
-    return sql_rows;
+    RES_ROWS *sql_rows = sql_gen_rows(result, num_rows, num_cols);
+    RES_ROWS_ITER *iter = (RES_ROWS_ITER *) sql_iter_init(sql_rows);
+    return iter;
 }
 
 uint32_t sql_write(MYSQL *mysql, const char *query, va_list args) {
@@ -70,28 +72,4 @@ void sql_stream_read_query(MYSQL *mysql, const char *query, stream_func func, ..
         func(row, num_rows, num_cols);
     }
     mysql_free_result(result);
-}
-
-struct RES_ROWS_ITER *sql_iter(struct RES_ROWS *rows) {
-    return res_row_iterator(rows);
-}
-
-char **sql_iter_next(struct RES_ROWS_ITER *iter) {
-    return res_row_next(iter);
-}
-
-bool sql_iter_has_next(struct RES_ROWS_ITER *iter) {
-    return iter_has_next(iter);
-}
-
-void sql_iter_reset(struct RES_ROWS_ITER *iter) {
-    reset_res_row(iter);
-}
-
-size_t sql_iter_num_cols(struct RES_ROWS_ITER *iter) {
-    return iter_num_cols(iter);
-}
-
-void sql_iter_free(struct RES_ROWS_ITER *iter) {
-    free_res_row_iter(iter);
 }

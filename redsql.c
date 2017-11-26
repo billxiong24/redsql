@@ -94,7 +94,7 @@ bool redsql_evict(struct redsql_conn *conn, const char *key) {
     return res > 0;
 }
 
-RES_ROWS *redsql_read(struct redsql_conn *conn, const char *key, const char *query, bool cache, ...) {
+RES_ROWS_ITER *redsql_read(struct redsql_conn *conn, const char *key, const char *query, bool cache, ...) {
     MYSQL *mysql = conn->mysql;
     redisContext *context = conn->context;
 

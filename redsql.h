@@ -34,7 +34,7 @@ struct redsql_conn *establish_conn(char *sql_host, char *sql_user, char *sql_pas
  * @return RES_ROWS struct pointer containing query results, which can be
  * iterated using redsql_iterator
  */
-RES_ROWS *redsql_read(struct redsql_conn *conn, const char *key, const char *query, bool cache, ...);
+RES_ROWS_ITER *redsql_read(struct redsql_conn *conn, const char *key, const char *query, bool cache, ...);
 
 /**
  * Write a formatted query to MySQL database. Takes a list of keys impacted

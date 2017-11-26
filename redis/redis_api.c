@@ -1,10 +1,8 @@
 #include "redis_api.h"
-#include "../row/_priv_row.h"
 #include "../row/_priv_row_redis.h"
-
 //TODO add support for async calls
 
-RES_ROWS *redis_read(redisContext *context, const char *key) {
+RES_ROWS_ITER *redis_read(redisContext *context, const char *key) {
     redisReply *reply = redisCommand(context, "LRANGE %s 0 -1", key);
 
     if(reply->type != REDIS_REPLY_ARRAY) {
@@ -52,7 +50,9 @@ RES_ROWS *redis_read(redisContext *context, const char *key) {
     }
 
     freeReplyObject(reply);
-    return res_rows;
+
+    struct REDIS_RES_ROWS_ITER * iter = redis_iter_init(res_rows);
+    return (RES_ROWS_ITER *) iter;
 }
 
 uint32_t redis_write(redisContext *context, const char *key, RES_ROWS *rows) {

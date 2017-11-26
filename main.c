@@ -18,18 +18,20 @@ int main(void) {
     query = "SELECT * FROM User";
 
 
-    RES_ROWS *rows = redsql_read(conn, key, query, true);
-    /*RES_ROWS_ITER *iter = redis_iter(rows);*/
-    /*while(redis_iter_has_next(iter)) {*/
+    RES_ROWS_ITER *iter = redsql_read(conn, key, query, true);
+    while(RES_ROW_ITER_FUNC(iter, iter_has_next)) {
+        char **next = RES_ROW_ITER_FUNC(iter, res_row_next);
+
         /*char **next = redis_iter_next(iter);*/
-        /*for(int i = 0; i < redis_iter_num_cols(iter); i++) {*/
-            /*if(next[i]) {*/
-            /*}*/
-            /*else {*/
-                /*puts("Nul");*/
-            /*}*/
-        /*}*/
-    /*}*/
+        for(int i = 0; i < RES_ROW_ITER_FUNC(iter, iter_num_cols); i++) {
+            if(next[i]) {
+                /*puts(next[i]);*/
+            }
+            else {
+                puts("Nul");
+            }
+        }
+    }
 
     /*char *q= "SELECT id, chat_name, code, username, creator from Chat INNER JOIN MemberOf ON MemberOf.chat_id = Chat.id WHERE id = '%s'";*/
 
