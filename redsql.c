@@ -31,14 +31,17 @@ static unsigned long evict_from_cache(redisContext *context, const char *keys[],
     if(reply->type == REDIS_REPLY_ARRAY) {
         for (int i = 0; i < reply->elements; i++) {
             redisReply *temp = reply->element[i];
+            //if reply == 1, element was removed, else no element was removed
             if(temp->type == REDIS_REPLY_INTEGER && temp->integer > 0) {
                 ++count;
             }
         }
     }
     freeReplyObject(reply);
-    //return count / 2 because deleting 2 keys for every query, want to
-    //return number of queries deleted from redis
+    /**
+     * return count / 2 because deleting 2 keys for every query; we want to return 
+     * number of queries deleted from redis
+     */
     return count / 2;
 }
 

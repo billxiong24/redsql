@@ -11,12 +11,6 @@
 #include <stdbool.h>
 
 
-//NOTE keep this hidden from user
-//struct redsql_conn {
-    //MYSQL* mysql;
-    //redisContext *context;
-//};
-
 typedef struct redsql_conn redsql_conn;
 
 redsql_conn *establish_conn(char *sql_host, char *sql_user, char *sql_pass, char *db, char *redis_host, unsigned int redis_port);

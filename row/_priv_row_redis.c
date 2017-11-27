@@ -1,5 +1,6 @@
 #include "_priv_row_redis.h"
 #include "_priv_row_def.h"
+#include <stdio.h>
 
 struct REDIS_RES_ROWS_ITER {
     struct RES_ROWS_ITER super;

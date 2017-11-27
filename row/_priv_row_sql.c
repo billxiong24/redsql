@@ -6,6 +6,10 @@ struct SQL_RES_ROWS_ITER {
     struct RES_ROWS_ITER super;
 };
 
+#define gen_header(name) (\
+        struct RES_ROWS;\
+        struct name_RES_ROWS_ITER\
+        )
 struct RES_ROWS *sql_gen_rows(MYSQL_RES *result, int num_rows, int num_cols) {
     struct RES_ROWS *rows = malloc(sizeof(*rows));
     rows->type = MYSQL_ROW_TYPE;
