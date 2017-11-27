@@ -64,12 +64,12 @@ uint32_t redis_write(redisContext *context, const char *key, RES_ROWS_ITER *iter
     void *r = redisCommand(context, "DEL %s", key);
     freeReplyObject(r);
 
-    size_t num_cols = RES_ROW_ITER_FUNC(iter, iter_num_cols);
+    size_t num_cols = res_row_iter_cols(iter);
 
     register int count = 0;
 
-    while(RES_ROW_ITER_FUNC(iter, iter_has_next)) {
-        char **next = RES_ROW_ITER_FUNC(iter, res_row_next);
+    while(res_row_iter_has_next(iter)) {
+        char **next = res_row_iter_next(iter);
         for(int i = 0; i < num_cols; i++) {
             char *str = next[i];
             if(!str) {
@@ -87,6 +87,6 @@ uint32_t redis_write(redisContext *context, const char *key, RES_ROWS_ITER *iter
     //make sure to not free this iter, bc it will be returned, just using it
     //this saves memory, since we do not duplicate iterator, just use it
 
-    RES_ROW_ITER_FUNC(iter, reset_res_row);
+    res_row_iter_reset(iter);
     return count;
 }

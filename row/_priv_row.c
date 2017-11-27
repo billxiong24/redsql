@@ -3,10 +3,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#define RES_ROW_ITER_FUNC(res_row_iter, func) (\
-        res_row_iter->vtable->func(res_row_iter)\
-        )
-
 /**
  * These define the common functions that are used by all subclasses.
  * Subclasses are able to override by using a different function in vtable.
