@@ -58,6 +58,12 @@ struct RES_ROWS_ITER {
 /**
  * Virtual function table for struct RES_ROWS_ITER,
  * allows subclasses to inherit methods and implement "abstract"  methods
+ * This virtual function table defines a set of function pointers. The RES_ROW_ITER struct
+ * contains a pointer to this RES_ROW_VTABLE struct. The vtable determines which function to call
+ * on the struct; Using these function pointers and some casting, this allows for dynamic function binding 
+ * to some struct that "subclasses" struct RES_ROWS_ITER. That subclass fills out its own table using
+ * the struct below, and everytime a function below is called, a specific function defined by the subclass
+ * will be accessed from memory and executed using the specified function pointer below. 
  */
 
 struct RES_ROW_VTABLE {
@@ -96,13 +102,5 @@ struct RES_ROW_VTABLE {
      */
     size_t (*iter_num_cols)(struct RES_ROWS_ITER *);
 };
-
-/**
- * FIXME this is bad and not type safe etc, but this macro is being used in _priv_row_redis.
- * Keep this here for now, needs to be fixed later on
- */
-#define RES_ROW_ITER_FUNC(res_row_iter, func) (\
-        res_row_iter->vtable->func(res_row_iter)\
-        )
 
 #endif

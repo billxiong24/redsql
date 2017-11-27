@@ -22,6 +22,7 @@ size_t res_row_iter_cols(struct RES_ROWS_ITER *iter) {
 
 /**
  * Vtable binding functions
+ * These functions basically call a "subclasses" vtable function
  */
 
 char **res_row_iter_next(struct RES_ROWS_ITER *iter){
