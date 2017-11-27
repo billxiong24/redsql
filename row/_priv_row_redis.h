@@ -2,9 +2,9 @@
 #define _PRIV_ROW_REDIS_H
 #include "_priv_row.h"
 
-struct REDIS_RES_ROWS_ITER {
-    struct RES_ROWS_ITER super;
-};
+struct RES_ROWS;
+struct RES_ROWS_ITER;
+struct SQL_RES_ROWS_ITER;
 
 /**
  * "Constructor-like" function

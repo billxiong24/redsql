@@ -12,13 +12,14 @@
 
 
 //NOTE keep this hidden from user
-struct redsql_conn {
-    MYSQL* mysql;
-    redisContext *context;
-};
+//struct redsql_conn {
+    //MYSQL* mysql;
+    //redisContext *context;
+//};
 
+typedef struct redsql_conn redsql_conn;
 
-struct redsql_conn *establish_conn(char *sql_host, char *sql_user, char *sql_pass, char *db, char *redis_host, unsigned int redis_port);
+redsql_conn *establish_conn(char *sql_host, char *sql_user, char *sql_pass, char *db, char *redis_host, unsigned int redis_port);
 
 /**
  * Regular statements API
@@ -34,7 +35,7 @@ struct redsql_conn *establish_conn(char *sql_host, char *sql_user, char *sql_pas
  * @return RES_ROWS struct pointer containing query results, which can be
  * iterated using redsql_iterator
  */
-RES_ROWS_ITER *redsql_read(struct redsql_conn *conn, const char *key, const char *query, bool cache, ...);
+RES_ROWS_ITER *redsql_read(redsql_conn *conn, const char *key, const char *query, bool cache, ...);
 
 /**
  * Write a formatted query to MySQL database. Takes a list of keys impacted
@@ -46,7 +47,7 @@ RES_ROWS_ITER *redsql_read(struct redsql_conn *conn, const char *key, const char
  *
  * @return number of 
  */
-unsigned long redsql_write(struct redsql_conn *conn, const char *evict_keys[], size_t evict_size, const char *query, ...);
+unsigned long redsql_write(redsql_conn *conn, const char *evict_keys[], size_t evict_size, const char *query, ...);
 
 /**
  * Returns the query associated with a specific key
@@ -62,7 +63,7 @@ char *redsql_get_stored_query(struct redsql_conn *, const char *key);
  *
  * @return true if in redis, else false
  */
-bool redsql_in_cache(struct redsql_conn *, const char *key);
+bool redsql_in_cache(redsql_conn *, const char *key);
 
 
 /**
@@ -71,12 +72,12 @@ bool redsql_in_cache(struct redsql_conn *, const char *key);
  *
  * @return true if key was evicted, else false
  */
-bool redsql_evict(struct redsql_conn *, const char *key);
+bool redsql_evict(redsql_conn *, const char *key);
 
 /**
  * Destructor for redsql_conn struct
  */
-void free_redsql_conn(struct redsql_conn *conn);
+void free_redsql_conn(redsql_conn *conn);
 
 /**
  * TODO Prepared statements API

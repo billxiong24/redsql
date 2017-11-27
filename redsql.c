@@ -1,5 +1,6 @@
 #include "row/_priv_row.h"
 #include "redsql.h"
+#include "_priv_redsql.h"
 
 #define QUERY_KEY "query:"
 
@@ -126,7 +127,7 @@ RES_ROWS_ITER *redsql_read(struct redsql_conn *conn, const char *key, const char
             store_query(context, key, query, args_copy);
         }
         
-        RES_ROW_ITER_FUNC(iter, reset_res_row);
+        res_row_iter_reset(iter);
         return iter;
     }
 }

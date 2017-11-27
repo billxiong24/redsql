@@ -1,6 +1,6 @@
 #include "redis_api.h"
 #include "../row/_priv_row_redis.h"
-#include "../row/_priv_row_sql.h"
+#include "../row/_priv_row_def.h"
 //TODO add support for async calls
 
 RES_ROWS_ITER *redis_read(redisContext *context, const char *key) {
@@ -57,6 +57,10 @@ RES_ROWS_ITER *redis_read(redisContext *context, const char *key) {
 }
 
 uint32_t redis_write(redisContext *context, const char *key, RES_ROWS_ITER *iter) {
+    if(iter->res_rows->type != MYSQL_ROW_TYPE) {
+        //TODO some eror handling here
+        return -1;
+    }
     void *r = redisCommand(context, "DEL %s", key);
     freeReplyObject(r);
 

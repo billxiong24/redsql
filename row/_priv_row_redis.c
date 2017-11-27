@@ -1,4 +1,9 @@
 #include "_priv_row_redis.h"
+#include "_priv_row_def.h"
+
+struct REDIS_RES_ROWS_ITER {
+    struct RES_ROWS_ITER super;
+};
 
 struct RES_ROWS *redis_gen_rows(MYSQL_RES *result, int num_rows, int num_cols) {
 
@@ -59,11 +64,11 @@ void redis_iter_free(struct REDIS_RES_ROWS_ITER *iter) {
 struct RES_ROW_VTABLE redis_vtable = {
     &redis_gen_rows,
     (char **(*)(struct RES_ROWS_ITER *)) &redis_iter_next,
-    &iter_has_next,
+    &res_row_iter_has_next,
     (void (*)(struct RES_ROWS_ITER *)) &redis_iter_reset,
     (void (*)(struct RES_ROWS_ITER *)) &redis_iter_free,
-    &iter_num_rows,
-    &iter_num_cols
+    &res_row_iter_rows,
+    &res_row_iter_cols,
 };
 
 struct REDIS_RES_ROWS_ITER * redis_iter_init(struct RES_ROWS * rows) {
