@@ -10,7 +10,6 @@
  */
 
 #define STRCAT(a, b) a##b
-
 #define ITER_STRUCT(API_NAME) struct STRCAT(API_NAME, _RES_ROWS_ITER *)
 
 #define gen_headers(API_NAME, api_name)\

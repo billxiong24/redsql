@@ -1,6 +1,7 @@
-#include "row/_priv_row.h"
+#include "../row/_priv_row.h"
 #include "redsql.h"
 #include "_priv_redsql.h"
+
 
 #define QUERY_KEY "query:"
 

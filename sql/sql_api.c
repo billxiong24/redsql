@@ -39,6 +39,9 @@ char *gen_query(const char *query, va_list args) {
 }
 
 RES_ROWS_ITER *sql_read(MYSQL *mysql, const char *query, va_list args) {
+    if(!query) {
+        return NULL;
+    }
 
     MYSQL_RES *result = exec_query(mysql, query, args);
 
@@ -52,6 +55,9 @@ RES_ROWS_ITER *sql_read(MYSQL *mysql, const char *query, va_list args) {
 }
 
 uint32_t sql_write(MYSQL *mysql, const char *query, va_list args) {
+    if(!query) {
+        return 0;
+    }
 
     MYSQL_RES *result = exec_query(mysql, query, args);
     mysql_free_result(result);
@@ -59,6 +65,11 @@ uint32_t sql_write(MYSQL *mysql, const char *query, va_list args) {
 }
 
 void sql_stream_read_query(MYSQL *mysql, const char *query, stream_func func, ...) {
+    //TODO "throw" some exception here
+    if(!query) {
+        return;
+    }
+
     va_list args;
     va_start(args, func);
 
