@@ -80,11 +80,16 @@ void complex_sql_read(CuTest *tc) {
 }
 
 
-void sql_read_metadata(CuTest  *tc) {
+void sql_read_metadata(CuTest *tc) {
     RES_ROWS_ITER *iter = setup_sql_read("select * from employees limit %d", 5);
 
-    CuAssertIntEquals(tc, 5, res_row_iter_rows(iter));  
-    CuAssertIntEquals(tc, 6, res_row_iter_cols(iter));  
+    CuAssertIntEquals(tc, 5, res_row_iter_rows(iter));
+    CuAssertIntEquals(tc, 6, res_row_iter_cols(iter));
+}
+
+void edge_sql_read(CuTest *tc) {
+    RES_ROWS_ITER *iter = setup_sql_read(NULL, 4, 5, 5, 5, 5);
+    CuAssertPtrEquals(tc, NULL, iter);
 }
 
 void simple_sql_update(CuTest *tc) {
@@ -109,6 +114,11 @@ void simple_sql_insert_delete(CuTest *tc) {
     CuAssertIntEquals(tc, 1, res);
 }
 
+void edge_sql_write(CuTest *tc) {
+    uint32_t res = setup_sql_write(NULL, "a");
+    CuAssertIntEquals(tc, 0, res);
+}
+
 extern CuSuite *sql_api_suite() {
     CuSuite *suite = CuSuiteNew();
     
@@ -119,10 +129,12 @@ extern CuSuite *sql_api_suite() {
     SUITE_ADD_TEST(suite, simple_sql_read);
     SUITE_ADD_TEST(suite, complex_sql_read);
     SUITE_ADD_TEST(suite, sql_read_metadata);
+    SUITE_ADD_TEST(suite, edge_sql_read);
 
     //sql_write tests
     SUITE_ADD_TEST(suite, simple_sql_update);
     SUITE_ADD_TEST(suite, simple_sql_insert_delete);
+    SUITE_ADD_TEST(suite, edge_sql_write);
 
     return suite;
 }

@@ -80,7 +80,7 @@ void sql_stream_read_query(MYSQL *mysql, const char *query, stream_func func, ..
 
     MYSQL_ROW row;
 
-    while(row = mysql_fetch_row(result)) {
+    while((row = mysql_fetch_row(result))) {
         func(row, num_rows, num_cols);
     }
     mysql_free_result(result);
