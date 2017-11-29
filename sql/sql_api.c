@@ -13,15 +13,37 @@ static int err_check(MYSQL *mysql, int res) {
     return 0;
 }
 
-static int err_null_check(MYSQL *mysql, const char *query, va_list args) {
-    return 0;
+static int err_null_check(MYSQL_WRAP *wrap , const char *query, va_list args) {
+    int err = 0;
+
+    if(!query) {
+        err = ERR_NULL_QUERY;
+    }
+    if(!wrap) {
+        err = ERR_NULL_MYSQL_WRAP;
+        return err;
+    }
+    if(!wrap->mysql) {
+        err = ERR_NULL_MYSQL;
+    }
+    if(!args) {
+        err = ERR_NULL_ARGS;
+    }
+
+    if(err != 0) {
+        wrap->err = NULL_PTR;
+    }
+
+    return err;
 }
 
-static MYSQL_RES *exec_query(MYSQL *mysql, const char *query, va_list args) {
+static MYSQL_RES *exec_query(MYSQL_WRAP *wrap, const char *query, va_list args) {
 
+    MYSQL *mysql = wrap->mysql;
     char *buffer = gen_query(query, args);
 
     if(err_check(mysql, mysql_query(mysql, buffer))) {
+        wrap->err = (char *) mysql_error(mysql);
         return NULL;
     }
 
@@ -49,13 +71,14 @@ char *gen_query(const char *query, va_list args) {
     return buffer;
 }
 
-RES_ROWS_ITER *sql_read(MYSQL *mysql, const char *query, va_list args) {
-    if(!query) {
+RES_ROWS_ITER *sql_read(MYSQL_WRAP *wrap, const char *query, va_list args) {
+    if(err_null_check(wrap, query, args)) {
         return NULL;
     }
 
-    MYSQL_RES *result = exec_query(mysql, query, args);
+    MYSQL_RES *result = exec_query(wrap, query, args);
     if(!result) {
+        //TODO find out if we need to free mem here
         return NULL;
     }
 
@@ -68,22 +91,23 @@ RES_ROWS_ITER *sql_read(MYSQL *mysql, const char *query, va_list args) {
     return iter;
 }
 
-uint32_t sql_write(MYSQL *mysql, const char *query, va_list args) {
-    if(!query) {
-        return -1;
+int32_t sql_write(MYSQL_WRAP *wrap, const char *query, va_list args) {
+    int check; 
+    if((check = err_null_check(wrap, query, args)) < 0) {
+        return check;
     }
 
-    MYSQL_RES *result = exec_query(mysql, query, args);
 
-    if(!result) {
-        return -2;
-    }
+    MYSQL *mysql = wrap->mysql;
+
+    //result could be null, but that does not mean write query failed
+    MYSQL_RES *result = exec_query(wrap, query, args);
 
     mysql_free_result(result);
     return mysql_affected_rows(mysql);
 }
 
-void sql_stream_read_query(MYSQL *mysql, const char *query, stream_func func, ...) {
+void sql_stream_read_query(MYSQL_WRAP *wrap, const char *query, stream_func func, ...) {
     //TODO "throw" some exception here
     if(!query) {
         return;
@@ -92,7 +116,7 @@ void sql_stream_read_query(MYSQL *mysql, const char *query, stream_func func, ..
     va_list args;
     va_start(args, func);
 
-    MYSQL_RES *result = exec_query(mysql, query, args);
+    MYSQL_RES *result = exec_query(wrap, query, args);
 
     if(!result) {
         return;

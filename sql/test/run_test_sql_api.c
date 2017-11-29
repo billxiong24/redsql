@@ -4,6 +4,7 @@
 extern CuSuite *sql_api_suite();
 extern void simple_sql_read(CuTest *tc);
 extern void before_all();
+extern void after_all();
 
 static void get_res(CuSuite *suite) {
 
@@ -25,4 +26,3 @@ int main(void) {
 
     return 0;
 }
-

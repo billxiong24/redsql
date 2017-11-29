@@ -56,7 +56,8 @@ struct redsql_conn *establish_conn(char *sql_host, char *sql_user, char *sql_pas
     redisContext *context = redisConnect(redis_host, redis_port);
 
     struct redsql_conn *conn = malloc(sizeof(*conn));
-    conn->mysql = mysql;
+    MYSQL_WRAP *wrap = mysql_wrap_init(mysql);
+    conn->mysql = wrap;
     conn->context = context;
 
     return conn;
@@ -100,7 +101,7 @@ bool redsql_evict(struct redsql_conn *conn, const char *key) {
 }
 
 RES_ROWS_ITER *redsql_read(struct redsql_conn *conn, const char *key, const char *query, bool cache, ...) {
-    MYSQL *mysql = conn->mysql;
+    MYSQL_WRAP *mysql = conn->mysql;
     redisContext *context = conn->context;
 
     va_list args, args_copy;
@@ -137,7 +138,7 @@ RES_ROWS_ITER *redsql_read(struct redsql_conn *conn, const char *key, const char
 }
 
 unsigned long redsql_write(struct redsql_conn *conn, const char *evict_keys[], size_t evict_size, const char *query, ...) {
-    MYSQL *mysql = conn->mysql;
+    MYSQL_WRAP *mysql = conn->mysql;
     redisContext *context = conn->context;
 
     va_list args;
@@ -154,7 +155,7 @@ unsigned long redsql_write(struct redsql_conn *conn, const char *evict_keys[], s
 }
 
 void free_redsql_conn(struct redsql_conn *conn) {
-    mysql_close(conn->mysql);
+    mysql_wrap_free(conn->mysql);
     redisFree(conn->context);
     free(conn);
 }

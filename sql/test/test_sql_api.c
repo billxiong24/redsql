@@ -5,11 +5,11 @@
 #include <stdarg.h>
 
 
-MYSQL *sql;
+MYSQL_WRAP *sql;
 void before_all() {
-    sql = mysql_init(NULL);
+    MYSQL *mysql = mysql_init(NULL);
 
-    if(mysql_real_connect(sql, "localhost", "root", "Chem1313#", "employees", 0, NULL, 0) == NULL) {
+    if(mysql_real_connect(mysql, "localhost", "root", "Chem1313#", "employees", 0, NULL, 0) == NULL) {
         /**
          * Something has gone wrong, this probably means table was not created.
          * Otherwise, double check credentials
@@ -17,6 +17,8 @@ void before_all() {
         fprintf(stderr, "MYSQL Connection failed, make sure to run setup_db.sh in scripts folder\n"); 
         exit(1);
     }
+
+    sql = mysql_wrap_init(mysql);
 }
 
 static RES_ROWS_ITER *setup_sql_read(const char *query, ...) {
@@ -25,7 +27,7 @@ static RES_ROWS_ITER *setup_sql_read(const char *query, ...) {
     return sql_read(sql, query, args);
 }
 
-static uint32_t setup_sql_write(const char *query, ...) {
+static int32_t setup_sql_write(const char *query, ...) {
     va_list args;
     va_start(args, query);
 
@@ -94,36 +96,45 @@ void edge_sql_read(CuTest *tc) {
 
 void simple_sql_update(CuTest *tc) {
     char *query = "update employees set last_name='%s' where emp_no=110228";
-    uint32_t res = setup_sql_write(query, "Smith");
 
+    int32_t res = setup_sql_write(query, "Smith");
+    int32_t res2 = setup_sql_write(query, "Sigstam");
     CuAssertIntEquals(tc, 1, res);
-
-    //reset to original name
-    res = setup_sql_write(query, "Sigstam");
-    CuAssertIntEquals(tc, 1, res);
+    CuAssertIntEquals(tc, 1, res2);
 }
 
 void simple_sql_insert_delete(CuTest *tc) {
     char *query = "insert into employees values (%d, '%s', '%s', '%s', '%s', '%s')";
     
-    uint32_t res = setup_sql_write(query, 123,  "1996-12-12", "adf", "adsf", "F", "2010-01-01");
-    CuAssertIntEquals(tc, 1, res);
+    int32_t res = setup_sql_write(query, 123,  "1996-12-12", "adf", "adsf", "F", "2010-01-01");
 
     //reset to original state
-    res = setup_sql_write("delete from employees where emp_no=%d", 123);
+    int32_t res2 = setup_sql_write("delete from employees where emp_no=%d", 123);
     CuAssertIntEquals(tc, 1, res);
+    CuAssertIntEquals(tc, 1, res2);
 }
 
 void edge_sql_write(CuTest *tc) {
-    uint32_t res = setup_sql_write(NULL, "a");
-    CuAssertIntEquals(tc, -1, res);
+    int32_t res = setup_sql_write(NULL, "a");
+    CuAssertTrue(tc, res < 0);
+    CuAssertTrue(tc, sql->err != NULL);
 }
 
 void null_args_write(CuTest *tc) {
 
     va_list args;
-    /*uint32_t res = sql_write(NULL, "wtest", args);*/
-    /*CuAssertIntEquals(tc, -1, res);*/
+    int32_t res = sql_write(NULL, "wtest", args);
+    CuAssertTrue(tc, res < 0);
+
+    res = sql_write(sql, "some query", NULL);
+    CuAssertTrue(tc, res < 0);
+    //the error was placed into the MYSQL_WRAP *struct
+    CuAssertTrue(tc, sql->err != NULL);
+}
+
+void free_wrap_test(CuTest *tc) {
+    //just to see that it doesnt crash
+    mysql_wrap_free(sql);
 }
 
 extern CuSuite *sql_api_suite() {
@@ -144,6 +155,8 @@ extern CuSuite *sql_api_suite() {
     SUITE_ADD_TEST(suite, edge_sql_write);
     SUITE_ADD_TEST(suite, null_args_write);
 
+    //free
+    SUITE_ADD_TEST(suite, free_wrap_test);
 
     return suite;
 }

@@ -8,7 +8,7 @@
  */
 
 struct redsql_conn {
-    MYSQL* mysql;
+    MYSQL_WRAP *mysql;
     redisContext *context;
 };
 
