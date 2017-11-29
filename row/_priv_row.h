@@ -9,8 +9,6 @@
 #define MYSQL_ROW_TYPE 0
 #define REDIS_ROW_TYPE 1
 
-#define ROW_TYPE unsigned char
-
 #define NULL_DELIM "(*@#$(*$W%9747(@*#$)*@#$(*$%&#$%*&__!@))#$*!@(($#"
 #define NULL_SYM "((NULL))"
 

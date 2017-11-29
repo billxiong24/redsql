@@ -116,7 +116,14 @@ void simple_sql_insert_delete(CuTest *tc) {
 
 void edge_sql_write(CuTest *tc) {
     uint32_t res = setup_sql_write(NULL, "a");
-    CuAssertIntEquals(tc, 0, res);
+    CuAssertIntEquals(tc, -1, res);
+}
+
+void null_args_write(CuTest *tc) {
+
+    va_list args;
+    /*uint32_t res = sql_write(NULL, "wtest", args);*/
+    /*CuAssertIntEquals(tc, -1, res);*/
 }
 
 extern CuSuite *sql_api_suite() {
@@ -135,6 +142,8 @@ extern CuSuite *sql_api_suite() {
     SUITE_ADD_TEST(suite, simple_sql_update);
     SUITE_ADD_TEST(suite, simple_sql_insert_delete);
     SUITE_ADD_TEST(suite, edge_sql_write);
+    SUITE_ADD_TEST(suite, null_args_write);
+
 
     return suite;
 }

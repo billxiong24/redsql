@@ -1,5 +1,10 @@
 #ifndef _PRIV_ROW_DEF_H
 #define _PRIV_ROW_DEF_H
+#include <mysql/mysql.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#define ROW_TYPE unsigned char
 
 /**
  * Simple encapsulation of a char ** for clarity
@@ -102,5 +107,18 @@ struct RES_ROW_VTABLE {
      */
     size_t (*iter_num_cols)(struct RES_ROWS_ITER *);
 };
+
+/**
+ * This functions as a super base constructor to house common
+ * functionality for subclasses. Not intended for client use,
+ * which is why this function is in this header file.
+ *
+ * @param rows the query result rows to use for iterator
+ * @param table the vtable to use for iterator
+ *
+ * @return pointer to RES_ROWS_ITER struct containing the relevant 
+ * information
+ */
+struct RES_ROWS_ITER res_row_iter_init(struct RES_ROWS *rows, struct RES_ROW_VTABLE *table);
 
 #endif

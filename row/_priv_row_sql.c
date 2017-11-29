@@ -6,10 +6,6 @@ struct SQL_RES_ROWS_ITER {
     struct RES_ROWS_ITER super;
 };
 
-#define gen_header(name) (\
-        struct RES_ROWS;\
-        struct name_RES_ROWS_ITER\
-        )
 struct RES_ROWS *sql_gen_rows(MYSQL_RES *result, int num_rows, int num_cols) {
     struct RES_ROWS *rows = malloc(sizeof(*rows));
     rows->type = MYSQL_ROW_TYPE;
@@ -57,9 +53,7 @@ struct RES_ROW_VTABLE sql_vtable = {
 
 struct SQL_RES_ROWS_ITER *sql_iter_init(struct RES_ROWS *rows) {
     struct SQL_RES_ROWS_ITER *iter = malloc(sizeof(*iter));
-    iter->super.res_rows = rows;
-    iter->super.index = 0;
-    iter->super.vtable = &sql_vtable;
+    iter->super = res_row_iter_init(rows, &sql_vtable);
 
     return iter;
 }

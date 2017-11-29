@@ -13,6 +13,10 @@ static int err_check(MYSQL *mysql, int res) {
     return 0;
 }
 
+static int err_null_check(MYSQL *mysql, const char *query, va_list args) {
+    return 0;
+}
+
 static MYSQL_RES *exec_query(MYSQL *mysql, const char *query, va_list args) {
 
     char *buffer = gen_query(query, args);
@@ -23,6 +27,13 @@ static MYSQL_RES *exec_query(MYSQL *mysql, const char *query, va_list args) {
 
     free(buffer);
     return mysql_store_result(mysql);
+}
+
+MYSQL_WRAP *mysql_wrap_init(MYSQL *mysql) {
+    MYSQL_WRAP *wrap = malloc(sizeof(*wrap));
+    wrap->mysql = mysql;
+    wrap->err = NULL;
+    return wrap;
 }
 
 char *gen_query(const char *query, va_list args) {
@@ -44,6 +55,9 @@ RES_ROWS_ITER *sql_read(MYSQL *mysql, const char *query, va_list args) {
     }
 
     MYSQL_RES *result = exec_query(mysql, query, args);
+    if(!result) {
+        return NULL;
+    }
 
     int num_rows = mysql_num_rows(result);
     int num_cols = mysql_num_fields(result);
@@ -56,10 +70,15 @@ RES_ROWS_ITER *sql_read(MYSQL *mysql, const char *query, va_list args) {
 
 uint32_t sql_write(MYSQL *mysql, const char *query, va_list args) {
     if(!query) {
-        return 0;
+        return -1;
     }
 
     MYSQL_RES *result = exec_query(mysql, query, args);
+
+    if(!result) {
+        return -2;
+    }
+
     mysql_free_result(result);
     return mysql_affected_rows(mysql);
 }
@@ -75,6 +94,10 @@ void sql_stream_read_query(MYSQL *mysql, const char *query, stream_func func, ..
 
     MYSQL_RES *result = exec_query(mysql, query, args);
 
+    if(!result) {
+        return;
+    }
+
     int num_rows = mysql_num_rows(result);
     int num_cols = mysql_num_fields(result);
 
@@ -84,4 +107,9 @@ void sql_stream_read_query(MYSQL *mysql, const char *query, stream_func func, ..
         func(row, num_rows, num_cols);
     }
     mysql_free_result(result);
+}
+
+void mysql_wrap_free(MYSQL_WRAP *wrap) {
+    mysql_close(wrap->mysql);
+    free(wrap);
 }

@@ -74,9 +74,7 @@ struct RES_ROW_VTABLE redis_vtable = {
 
 struct REDIS_RES_ROWS_ITER * redis_iter_init(struct RES_ROWS * rows) {
     struct REDIS_RES_ROWS_ITER *iter = malloc(sizeof(*iter));
-    iter->super.res_rows = rows;
-    iter->super.index = 0;
-    iter->super.vtable = &redis_vtable;
+    iter->super = res_row_iter_init(rows, &redis_vtable);
 
     return iter;
 }

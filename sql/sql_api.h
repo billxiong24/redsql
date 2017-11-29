@@ -8,6 +8,23 @@
 #include "../row/_priv_row.h"
 
 /**
+ * struct to encapsulate a MYSQL struct pointer, as well an error message.
+ */
+typedef struct {
+    MYSQL *mysql;
+    char *err;
+
+} MYSQL_WRAP;
+
+/**
+ * Initialize function for MYSQL_WRAP
+ *
+ * @param mysql the MYSQL * pointer to use for queries, etc.
+ * @return pointer to struct of type MYSQL_WRAP * 
+ */
+MYSQL_WRAP *mysql_wrap_init(MYSQL *mysql);
+
+/**
  * This function pointer is passed in to stream_read_query, and is called
  * on every row of the resultant query, like a function on a stream. 
  */
@@ -39,5 +56,10 @@ uint32_t sql_write(MYSQL *mysql, const char *query, va_list args);
  * as it is streamed through
  */
 void sql_stream_read_query(MYSQL *mysql, const char *query, stream_func func, ...);
+
+/**
+ * Destructor for MYSQL_WRAP *, frees all memory
+ */
+void mysql_wrap_free(MYSQL_WRAP *);
 
 #endif
