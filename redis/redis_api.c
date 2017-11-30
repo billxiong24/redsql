@@ -1,7 +1,25 @@
-#include "redis_api.h"
 #include "../row/_priv_row_redis.h"
 #include "../row/_priv_row_def.h"
+#include "redis_api.h"
+#include "_priv_redis_api.h"
 //TODO add support for async calls
+
+REDIS_WRAP *redis_wrap_init(redisContext *context) {
+    REDIS_WRAP *wrap = malloc(sizeof(*wrap));
+    wrap->context = context;
+    wrap->err = NULL;
+
+    return wrap;
+}
+
+void redis_wrap_free(REDIS_WRAP *wrap) {
+    redisFree(wrap->context);
+    free(wrap);
+}
+
+char *redis_wrap_get_err(REDIS_WRAP *wrap) {
+    return wrap->err;
+}
 
 RES_ROWS_ITER *redis_read(redisContext *context, const char *key) {
     redisReply *reply = redisCommand(context, "LRANGE %s 0 -1", key);

@@ -9,6 +9,15 @@
 #include "../types.h"
 #include "../row/_priv_row.h"
 
+
+typedef struct REDIS_WRAP REDIS_WRAP;
+
+REDIS_WRAP *redis_wrap_init(redisContext *context);
+
+void redis_wrap_free(REDIS_WRAP *);
+
+char *redis_wrap_get_err(REDIS_WRAP *);
+
 //TODO add support for async calls
 
 /**

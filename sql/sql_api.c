@@ -58,6 +58,10 @@ MYSQL_WRAP *mysql_wrap_init(MYSQL *mysql) {
     return wrap;
 }
 
+char *mysql_wrap_get_err(MYSQL_WRAP *wrap) {
+    return wrap->err;
+}
+
 char *gen_query(const char *query, va_list args) {
     va_list args_reuse;
     va_copy(args_reuse, args);

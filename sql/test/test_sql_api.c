@@ -117,7 +117,7 @@ void simple_sql_insert_delete(CuTest *tc) {
 void edge_sql_write(CuTest *tc) {
     int32_t res = setup_sql_write(NULL, "a");
     CuAssertTrue(tc, res < 0);
-    CuAssertTrue(tc, sql->err != NULL);
+    CuAssertTrue(tc, mysql_wrap_get_err(sql) != NULL);
 }
 
 void null_args_write(CuTest *tc) {
@@ -129,7 +129,7 @@ void null_args_write(CuTest *tc) {
     res = sql_write(sql, "some query", NULL);
     CuAssertTrue(tc, res < 0);
     //the error was placed into the MYSQL_WRAP *struct
-    CuAssertTrue(tc, sql->err != NULL);
+    CuAssertTrue(tc, mysql_wrap_get_err(sql) != NULL);
 }
 
 void free_wrap_test(CuTest *tc) {

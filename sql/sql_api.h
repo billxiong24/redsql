@@ -18,11 +18,7 @@
 /**
  * struct to encapsulate a MYSQL struct pointer, as well an error message.
  */
-typedef struct {
-    MYSQL *mysql;
-    char *err;
-
-} MYSQL_WRAP;
+typedef struct MYSQL_WRAP MYSQL_WRAP;
 
 /**
  * Initialize function for MYSQL_WRAP
@@ -31,6 +27,9 @@ typedef struct {
  * @return pointer to struct of type MYSQL_WRAP * 
  */
 MYSQL_WRAP *mysql_wrap_init(MYSQL *mysql);
+
+
+char *mysql_wrap_get_err(MYSQL_WRAP *);
 
 /**
  * This function pointer is passed in to stream_read_query, and is called
