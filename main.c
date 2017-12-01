@@ -8,8 +8,8 @@
 #define INSERT_SAMPLE "INSERT INTO test_table(col1,col2,col3) VALUES(?,?,?)"
 
 int main(void) {
-
     struct redsql_conn *conn;
+
     conn = establish_conn("localhost", "root", "Chem1313#", "chatdb", "localhost", 6379);
 
     char *query; 

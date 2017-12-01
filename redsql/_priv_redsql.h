@@ -9,7 +9,7 @@
 
 struct redsql_conn {
     MYSQL_WRAP *mysql;
-    redisContext *context;
+    REDIS_WRAP *context;
 };
 
 typedef struct redsql_conn redsql_conn;

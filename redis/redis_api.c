@@ -17,11 +17,16 @@ void redis_wrap_free(REDIS_WRAP *wrap) {
     free(wrap);
 }
 
+redisContext *redis_wrap_get_context(REDIS_WRAP *wrap) {
+    return wrap->context;
+}
+
 char *redis_wrap_get_err(REDIS_WRAP *wrap) {
     return wrap->err;
 }
 
-RES_ROWS_ITER *redis_read(redisContext *context, const char *key) {
+RES_ROWS_ITER *redis_read(REDIS_WRAP *wrap, const char *key) {
+    redisContext *context = wrap->context;
     redisReply *reply = redisCommand(context, "LRANGE %s 0 -1", key);
 
     if(reply->type != REDIS_REPLY_ARRAY) {
@@ -74,7 +79,9 @@ RES_ROWS_ITER *redis_read(redisContext *context, const char *key) {
     return (RES_ROWS_ITER *) iter;
 }
 
-uint32_t redis_write(redisContext *context, const char *key, RES_ROWS_ITER *iter) {
+uint32_t redis_write(REDIS_WRAP *wrap, const char *key, RES_ROWS_ITER *iter) {
+
+    redisContext *context = wrap->context;
     if(iter->res_rows->type != MYSQL_ROW_TYPE) {
         //TODO some eror handling here
         return -1;
