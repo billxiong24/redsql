@@ -17,21 +17,21 @@ static int err_null_check(MYSQL_WRAP *wrap , const char *query, va_list args) {
     int err = 0;
 
     if(!query) {
-        err = ERR_NULL_QUERY;
+        err = ERR_NULL_STR;
     }
     if(!wrap) {
-        err = ERR_NULL_MYSQL_WRAP;
+        err = ERR_NULL_WRAP;
         return err;
     }
     if(!wrap->mysql) {
-        err = ERR_NULL_MYSQL;
+        err = ERR_NULL_CONN;
     }
     if(!args) {
         err = ERR_NULL_ARGS;
     }
 
     if(err != 0) {
-        wrap->err = NULL_PTR;
+        wrap->err = ERR_NULL_PTR;
     }
 
     return err;

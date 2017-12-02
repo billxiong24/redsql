@@ -7,13 +7,9 @@
 #include "../types.h"
 #include "../row/_priv_row.h"
 
+#include "../redsql_err.h"
 //TODO add line number and file
-#define NULL_PTR "Null pointer exception.\n"
 
-#define ERR_NULL_QUERY -1
-#define ERR_NULL_MYSQL -2
-#define ERR_NULL_ARGS -3
-#define ERR_NULL_MYSQL_WRAP -4
 
 /**
  * struct to encapsulate a MYSQL struct pointer, as well an error message.

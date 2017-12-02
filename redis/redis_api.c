@@ -4,6 +4,23 @@
 #include "_priv_redis_api.h"
 //TODO add support for async calls
 
+static int redis_err_check(REDIS_WRAP *wrap, const char *key) {
+    if(!wrap) {
+        return ERR_NULL_WRAP;
+    }
+    int err = 0;
+    if(!wrap->context) {
+        wrap->err = ERR_NULL_CONN_STR;
+        return ERR_NULL_CONN;
+    }
+    if(!key) {
+        wrap->err = ERR_NULL_STR_STR;
+        return ERR_NULL_STR;
+    }
+
+    return 0;
+}
+
 REDIS_WRAP *redis_wrap_init(redisContext *context) {
     REDIS_WRAP *wrap = malloc(sizeof(*wrap));
     wrap->context = context;

@@ -83,10 +83,17 @@ void simple_redis_wrap_write(CuTest *tc) {
 }
 
 
+
+//just to see that it doesnt crash
+void test_redis_wrap_free(CuTest *tc) {
+    redis_wrap_free(redis_wrap);
+}
+
 extern CuSuite *redis_api_suite() {
     CuSuite *suite = CuSuiteNew();
     SUITE_ADD_TEST(suite, simple_redis_wrap_read);
     SUITE_ADD_TEST(suite, simple_redis_wrap_write);
+    SUITE_ADD_TEST(suite, test_redis_wrap_free);
     
     return suite;
 }

@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include "../types.h"
 #include "../row/_priv_row.h"
+#include "../redsql_err.h"
 
 typedef struct REDIS_WRAP REDIS_WRAP;
 
