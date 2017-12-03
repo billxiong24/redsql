@@ -104,15 +104,17 @@ void redis_wrap_write_null_wrap(CuTest *tc) {
 //redis_read edge cases
 
 void redis_wrap_read_null_key(CuTest *tc) {
-
-}
-
-void redis_wrap_read_null_iter(CuTest *tc) {
+    RES_ROWS_ITER *iter = redis_read(redis_wrap, NULL);
+    CuAssertTrue(tc, iter == NULL);
+    CuAssertTrue(tc, redis_wrap_get_err(redis_wrap) != NULL);
 
 }
 
 void redis_wrap_read_null_wrap(CuTest *tc) {
-
+    RES_ROWS_ITER *iter = redis_read(NULL, "somekey");
+    CuAssertTrue(tc, iter == NULL);
+    char *res = redis_wrap_get_err(NULL);
+    CuAssertStrEquals(tc, ERR_NULL_WRAP_STR, res);
 }
 
 //other edge cases
@@ -137,7 +139,6 @@ extern CuSuite *redis_api_suite() {
     SUITE_ADD_TEST(suite, redis_wrap_null_get_err);
 
     SUITE_ADD_TEST(suite, redis_wrap_read_null_key);
-    SUITE_ADD_TEST(suite, redis_wrap_read_null_iter);
     SUITE_ADD_TEST(suite, redis_wrap_read_null_wrap);
 
     

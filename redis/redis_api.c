@@ -8,7 +8,7 @@ static int redis_err_check(REDIS_WRAP *wrap, const char *key) {
     if(!wrap) {
         return ERR_NULL_WRAP;
     }
-    int err = 0;
+
     if(!wrap->context) {
         wrap->err = ERR_NULL_CONN_STR;
         return ERR_NULL_CONN;
