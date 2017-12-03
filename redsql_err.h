@@ -16,5 +16,7 @@
 #define ERR_NULL_CONN -2
 #define ERR_NULL_ARGS -3
 #define ERR_NULL_WRAP -4
+#define ERR_NULL_ITER -5
+#define WRONG_ROW_TYPE -6
 
 #endif

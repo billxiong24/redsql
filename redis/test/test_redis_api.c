@@ -29,10 +29,12 @@ static void del_key(const char *key) {
 }
 
 static int32_t setup_redis_write(const char *key) {
-    del_key("key");
+    if(key)
+        del_key(key);
+
     char *query = "select first_name, last_name from employees limit 2";
     RES_ROWS_ITER *iter = setup_sql_read(query);
-    return redis_write(redis_wrap, "key", iter);
+    return redis_write(redis_wrap, key, iter);
     res_row_iter_free(iter);
 }
 
@@ -82,7 +84,42 @@ void simple_redis_wrap_write(CuTest *tc) {
     CuAssertIntEquals(tc, 2, res);
 }
 
+//redis_write edge cases
+void redis_wrap_write_null_key(CuTest *tc) {
+    setup_redis_write(NULL);
+    CuAssertTrue(tc, redis_wrap_get_err(redis_wrap) != NULL);
+}
 
+void redis_wrap_write_null_iter(CuTest *tc) {
+    redis_write(redis_wrap, "somekey", NULL);
+    CuAssertTrue(tc, redis_wrap_get_err(redis_wrap) != NULL);
+}
+
+void redis_wrap_write_null_wrap(CuTest *tc) {
+    redis_write(NULL, "somekey", NULL);
+    CuAssertTrue(tc, redis_wrap_get_err(redis_wrap) != NULL);
+}
+
+
+//redis_read edge cases
+
+void redis_wrap_read_null_key(CuTest *tc) {
+
+}
+
+void redis_wrap_read_null_iter(CuTest *tc) {
+
+}
+
+void redis_wrap_read_null_wrap(CuTest *tc) {
+
+}
+
+//other edge cases
+void redis_wrap_null_get_err(CuTest *tc) {
+    char *res = redis_wrap_get_err(NULL);
+    CuAssertTrue(tc, res != NULL);
+}
 
 //just to see that it doesnt crash
 void test_redis_wrap_free(CuTest *tc) {
@@ -93,7 +130,16 @@ extern CuSuite *redis_api_suite() {
     CuSuite *suite = CuSuiteNew();
     SUITE_ADD_TEST(suite, simple_redis_wrap_read);
     SUITE_ADD_TEST(suite, simple_redis_wrap_write);
+    SUITE_ADD_TEST(suite, redis_wrap_write_null_key);
     SUITE_ADD_TEST(suite, test_redis_wrap_free);
+    SUITE_ADD_TEST(suite, redis_wrap_write_null_iter);
+    SUITE_ADD_TEST(suite, redis_wrap_write_null_wrap);
+    SUITE_ADD_TEST(suite, redis_wrap_null_get_err);
+
+    SUITE_ADD_TEST(suite, redis_wrap_read_null_key);
+    SUITE_ADD_TEST(suite, redis_wrap_read_null_iter);
+    SUITE_ADD_TEST(suite, redis_wrap_read_null_wrap);
+
     
     return suite;
 }

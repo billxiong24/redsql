@@ -39,21 +39,23 @@ char *redis_wrap_get_err(REDIS_WRAP *);
 
 /**
  * Reads query result from redis with specific key
+ * Returns NULL If an error occurrs, such as passing in NULL values, etc.
  *
  * @param key the key to query from
- * @return RES_ROWS_ITER struct pointer containing query result info
+ * @return RES_ROWS_ITER struct pointer containing query result info, NULL if 
  */
 RES_ROWS_ITER *redis_read(REDIS_WRAP *, const char *key);
 
 /**
  * Writes RES_ROWS_ITER struct pointer to redis cache
+ * If error occurrs, such as null key, REDIS_WRAP *, etc. function returns the error code.
  *
  * @param key the key to store struct under
  * @param rows the struct pointer to store in redis
  *
- * @return number of rows added to redis cache
+ * @return number of rows added to redis cache, or error code if error occurrs.
  */
 
-uint32_t redis_write(REDIS_WRAP *, const char *key, RES_ROWS_ITER *rows);
+int32_t redis_write(REDIS_WRAP *, const char *key, RES_ROWS_ITER *iter);
 
 #endif

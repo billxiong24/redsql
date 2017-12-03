@@ -2,6 +2,7 @@
 #include "../../CuTest.h"
 
 extern CuSuite *redis_api_suite();
+extern void before_all();
 
 static void get_res(CuSuite *suite) {
 
@@ -13,6 +14,7 @@ static void get_res(CuSuite *suite) {
 }
 
 int main(void) {
+    before_all();
     CuSuite *suite = CuSuiteNew();
 
     CuSuiteAddSuite(suite, redis_api_suite());
