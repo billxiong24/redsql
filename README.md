@@ -9,12 +9,19 @@ sudo apt-get install libmysqlclient libmysqlclient-dev
   
 #### CentOS/Fedora/RHEL  
 ```  
-yum install mysql-devel  
+yum install mysql-devel
 ```  
   
 ## HIREDIS C client  
-git clone https://github.com/redis/hiredis.git  
-Find the makefile.    
+We need libevent library.  
+#### Debian/Ubuntu
+`sudo apt-get install libevent-dev`  
+
+#### CentOS/Fedora/RHEL
+`sudo yum install libevent-devel`  
+
+`git clone https://github.com/redis/hiredis.git`  
+Find the makefile.  
   
 ```    
 make    
@@ -35,10 +42,5 @@ ldconfig
   
 Hiredis header files will be found at ```/usr/include/hiredis```  
 
-## TPL binary serialization library
-
-```
-https://github.com/troydhanson/tpl.git  
-```
-
-Follow README instructions  
+# Making the library
+For now, just type `make`  
