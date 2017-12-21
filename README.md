@@ -21,14 +21,12 @@ We need libevent library.
 `sudo yum install libevent-devel`  
 
 `git clone https://github.com/redis/hiredis.git`  
+
+#### Setting up hiredis
 Find the makefile.  
   
-```    
-make    
-```  
-```  
-sudo make install    
-```  
+`make`  
+`sudo make install`  
   
 Make header files and library globally available  
 ```  
