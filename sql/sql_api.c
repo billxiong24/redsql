@@ -1,6 +1,7 @@
 #include <stdarg.h>
 #include "sql_api.h"
 #include "_priv_sql_api.h"
+#include "../row/_priv_row_sql.h"
 
 static int err_check(MYSQL *mysql, int res) {
     if(res) {
@@ -12,16 +13,52 @@ static int err_check(MYSQL *mysql, int res) {
     return 0;
 }
 
-static MYSQL_RES *exec_query(MYSQL *mysql, const char *query, va_list args) {
+static int err_null_check(MYSQL_WRAP *wrap , const char *query, va_list args) {
+    int err = 0;
 
+    if(!wrap) {
+        err = ERR_NULL_WRAP;
+        return err;
+    }
+    if(!query) {
+        wrap->err = ERR_NULL_STR_STR;
+        err = ERR_NULL_STR;
+    }
+    if(!wrap->mysql) {
+        wrap->err = ERR_NULL_CONN_STR;
+        err = ERR_NULL_CONN;
+    }
+    if(!args) {
+        wrap->err = ERR_NULL_ARGS_STR;
+        err = ERR_NULL_ARGS;
+    }
+
+    return err;
+}
+
+static MYSQL_RES *exec_query(MYSQL_WRAP *wrap, const char *query, va_list args) {
+
+    MYSQL *mysql = wrap->mysql;
     char *buffer = gen_query(query, args);
 
     if(err_check(mysql, mysql_query(mysql, buffer))) {
+        wrap->err = (char *) mysql_error(mysql);
         return NULL;
     }
 
     free(buffer);
     return mysql_store_result(mysql);
+}
+
+MYSQL_WRAP *mysql_wrap_init(MYSQL *mysql) {
+    MYSQL_WRAP *wrap = malloc(sizeof(*wrap));
+    wrap->mysql = mysql;
+    wrap->err = NULL;
+    return wrap;
+}
+
+char *mysql_wrap_get_err(MYSQL_WRAP *wrap) {
+    return wrap->err;
 }
 
 char *gen_query(const char *query, va_list args) {
@@ -37,61 +74,69 @@ char *gen_query(const char *query, va_list args) {
     return buffer;
 }
 
-RES_ROWS *sql_read(MYSQL *mysql, const char *query, va_list args) {
+RES_ROWS_ITER *sql_read(MYSQL_WRAP *wrap, const char *query, va_list args) {
+    if(err_null_check(wrap, query, args)) {
+        return NULL;
+    }
 
-    MYSQL_RES *result = exec_query(mysql, query, args);
+    MYSQL_RES *result = exec_query(wrap, query, args);
+    if(!result) {
+        //TODO find out if we need to free mem here
+        return NULL;
+    }
 
     int num_rows = mysql_num_rows(result);
     int num_cols = mysql_num_fields(result);
 
-    RES_ROWS *sql_rows = gen_rows(result, MYSQL_ROW_TYPE, num_rows, num_cols);
-    return sql_rows;
+    RES_ROWS *sql_rows = sql_gen_rows(result, num_rows, num_cols);
+    RES_ROWS_ITER *iter = (RES_ROWS_ITER *) sql_iter_init(sql_rows);
+
+    return iter;
 }
 
-uint32_t sql_write(MYSQL *mysql, const char *query, va_list args) {
+int32_t sql_write(MYSQL_WRAP *wrap, const char *query, va_list args) {
+    int check; 
+    if((check = err_null_check(wrap, query, args)) < 0) {
+        return check;
+    }
 
-    MYSQL_RES *result = exec_query(mysql, query, args);
+
+    MYSQL *mysql = wrap->mysql;
+
+    //result could be null, but that does not mean write query failed
+    MYSQL_RES *result = exec_query(wrap, query, args);
+
     mysql_free_result(result);
     return mysql_affected_rows(mysql);
 }
 
-void sql_stream_read_query(MYSQL *mysql, const char *query, stream_func func, ...) {
+void sql_stream_read_query(MYSQL_WRAP *wrap, const char *query, stream_func func, ...) {
+    //TODO "throw" some exception here
+    if(!query) {
+        return;
+    }
+
     va_list args;
     va_start(args, func);
 
-    MYSQL_RES *result = exec_query(mysql, query, args);
+    MYSQL_RES *result = exec_query(wrap, query, args);
+
+    if(!result) {
+        return;
+    }
 
     int num_rows = mysql_num_rows(result);
     int num_cols = mysql_num_fields(result);
 
     MYSQL_ROW row;
 
-    while(row = mysql_fetch_row(result)) {
+    while((row = mysql_fetch_row(result))) {
         func(row, num_rows, num_cols);
     }
     mysql_free_result(result);
 }
 
-struct RES_ROWS_ITER *sql_iter(struct RES_ROWS *rows) {
-    return res_row_iterator(rows);
-}
-
-char **sql_iter_next(struct RES_ROWS_ITER *iter) {
-    return res_row_next(iter);
-}
-
-bool sql_iter_has_next(struct RES_ROWS_ITER *iter) {
-    return iter_has_next(iter);
-}
-
-void sql_iter_reset(struct RES_ROWS_ITER *iter) {
-    reset_res_row(iter);
-}
-
-size_t sql_iter_num_cols(struct RES_ROWS_ITER *iter) {
-    return iter_num_cols(iter);
-}
-
-void sql_iter_free(struct RES_ROWS_ITER *iter) {
-    free_res_row_iter(iter);
+void mysql_wrap_free(MYSQL_WRAP *wrap) {
+    mysql_close(wrap->mysql);
+    free(wrap);
 }

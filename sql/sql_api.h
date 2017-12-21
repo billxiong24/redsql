@@ -5,6 +5,27 @@
 #include <inttypes.h>
 #include <stdbool.h>
 #include "../types.h"
+#include "../row/_priv_row.h"
+
+#include "../redsql_err.h"
+//TODO add line number and file
+
+
+/**
+ * struct to encapsulate a MYSQL struct pointer, as well an error message.
+ */
+typedef struct MYSQL_WRAP MYSQL_WRAP;
+
+/**
+ * Initialize function for MYSQL_WRAP
+ *
+ * @param mysql the MYSQL * pointer to use for queries, etc.
+ * @return pointer to struct of type MYSQL_WRAP * 
+ */
+MYSQL_WRAP *mysql_wrap_init(MYSQL *mysql);
+
+
+char *mysql_wrap_get_err(MYSQL_WRAP *);
 
 /**
  * This function pointer is passed in to stream_read_query, and is called
@@ -25,53 +46,23 @@ char *gen_query(const char *query, va_list args);
  * Any query to do with reading from database, i.e. SELECT, SHOW, DESCRIBE
  * returns the query result as an array of array of strings (char *)
  */
-RES_ROWS *sql_read(MYSQL *mysql, const char *query, va_list args); 
+RES_ROWS_ITER *sql_read(MYSQL_WRAP  *wrap, const char *query, va_list args); 
 
 /**
  * Any query to do with writing to database, i.e. INSERT, UPDATE, DELETE
  * returns number of affected rows
  */
-uint32_t sql_write(MYSQL *mysql, const char *query, va_list args);
+int32_t sql_write(MYSQL_WRAP *wrap, const char *query, va_list args);
 
 /**
  * Execute read query and stream results, takes in function to execute each row
  * as it is streamed through
  */
-void sql_stream_read_query(MYSQL *mysql, const char *query, stream_func func, ...);
+void sql_stream_read_query(MYSQL_WRAP *wrap, const char *query, stream_func func, ...);
 
 /**
- * create an iterator for the resultant query
+ * Destructor for MYSQL_WRAP *, frees all memory
  */
-struct RES_ROWS_ITER *sql_iter(struct RES_ROWS *);
-
-/**
- * return the next element in the resultant query struct (struct RES_ROWS *)
- */
-char **sql_iter_next(struct RES_ROWS_ITER *);
-
-/**
- * return true if there is another element to be iterated over, else false
- */
-bool sql_iter_has_next(struct RES_ROWS_ITER *);
-
-/**
- * reset iterator to the beginning element
- */
-void sql_iter_reset(struct RES_ROWS_ITER *);
-
-/**
- * destructor for iterator for resultant query
- */
-void sql_iter_free(struct RES_ROWS_ITER *);
-
-/**
- * return the number of fields in resultant query's table.
- */
-size_t sql_iter_num_cols(struct RES_ROWS_ITER *);
-
-/**
- * debugging purposes
- */
-void print_res(struct RES_ROWS *);
+void mysql_wrap_free(MYSQL_WRAP *);
 
 #endif

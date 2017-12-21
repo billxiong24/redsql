@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "redsql.h"
+#include "redsql/redsql.h"
 
 #define STRING_SIZE 50
 
@@ -8,22 +8,22 @@
 #define INSERT_SAMPLE "INSERT INTO test_table(col1,col2,col3) VALUES(?,?,?)"
 
 int main(void) {
-
     struct redsql_conn *conn;
+
     conn = establish_conn("localhost", "root", "Chem1313#", "chatdb", "localhost", 6379);
 
-    char *query = "SELECT id, chat_name, code, username, creator from Chat INNER JOIN MemberOf ON MemberOf.chat_id = Chat.id WHERE id = '%s'";
+    char *query; 
     char *key = "users";
 
     query = "SELECT * FROM User";
 
 
-    RES_ROWS *rows = redsql_read(conn, key, query, true);
-    RES_ROWS_ITER *iter = redis_iter(rows);
-    while(redis_iter_has_next(iter)) {
-        char **next = redis_iter_next(iter);
-        for(int i = 0; i < redis_iter_num_cols(iter); i++) {
+    RES_ROWS_ITER *iter = redsql_read(conn, key, query, true);
+    while(res_row_iter_has_next(iter)) {
+        char **next = res_row_iter_next(iter);
+        for(int i = 0; i < res_row_iter_cols(iter); i++) {
             if(next[i]) {
+                /*puts(next[i]);*/
             }
             else {
                 puts("Nul");
@@ -33,26 +33,25 @@ int main(void) {
 
     char *q= "SELECT id, chat_name, code, username, creator from Chat INNER JOIN MemberOf ON MemberOf.chat_id = Chat.id WHERE id = '%s'";
 
-    RES_ROWS *rows2 = redsql_read(conn, "wat", q, true, "0043e138f3a1daf9ccfbf718fc9acd48");
-    RES_ROWS_ITER *iter2 = redis_iter(rows2);
-    while(redis_iter_has_next(iter2)) {
-        redis_iter_next(iter2);
+    
+    RES_ROWS_ITER *iter2 = redsql_read(conn, "wat", q, true, "0043e138f3a1daf9ccfbf718fc9acd48");
+    while(res_row_iter_has_next(iter2)) {
+        res_row_iter_next(iter2);
     }
 
-    redis_iter_free(iter2);
-    redis_iter_reset(iter);
-    char **n = redis_iter_next(iter);
+    res_row_iter_free(iter2);
+    res_row_iter_reset(iter);
+    char **n = res_row_iter_next(iter);
     puts(n[0]);
 
     bool in = redsql_in_cache(conn, key);
     printf("in = %d\n", in);
-    /*bool res = redsql_evict(conn, key);*/
-    /*printf("res = %d\n", res);*/
+
 
     in = redsql_in_cache(conn, key);
     printf("in = %d\n", in);
 
-    redis_iter_free(iter);
+    res_row_iter_free(iter);
     
     const char *evict[] = {
         "users",

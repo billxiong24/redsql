@@ -41,4 +41,6 @@ ldconfig
 Hiredis header files will be found at ```/usr/include/hiredis```  
 
 # Making the library
-For now, just type `make`  
+run `./setenv` in the scripts directory. Replace values where appropriate  
+
+Then do `make` 

@@ -5,5 +5,10 @@
 #ifndef _PRIV_SQL_API_H
 #define _PRIV_SQL_API_H
 
-#include "../row/_priv_row.h"
+struct MYSQL_WRAP{
+    MYSQL *mysql;
+    char *err;
+
+};
+
 #endif

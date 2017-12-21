@@ -1,9 +1,59 @@
+#include "../row/_priv_row_redis.h"
+#include "../row/_priv_row_def.h"
 #include "redis_api.h"
-#include "../row/_priv_row.h"
-
+#include "_priv_redis_api.h"
 //TODO add support for async calls
 
-RES_ROWS *redis_read(redisContext *context, const char *key) {
+static int redis_err_check(REDIS_WRAP *wrap, const char *key) {
+    if(!wrap) {
+        return ERR_NULL_WRAP;
+    }
+
+    if(!wrap->context) {
+        wrap->err = ERR_NULL_CONN_STR;
+        return ERR_NULL_CONN;
+    }
+    if(!key) {
+        wrap->err = ERR_NULL_STR_STR;
+        return ERR_NULL_STR;
+    }
+
+    return 0;
+}
+
+REDIS_WRAP *redis_wrap_init(redisContext *context) {
+    REDIS_WRAP *wrap = malloc(sizeof(*wrap));
+    wrap->context = context;
+    wrap->err = NULL;
+
+    return wrap;
+}
+
+void redis_wrap_free(REDIS_WRAP *wrap) {
+    redisFree(wrap->context);
+    free(wrap);
+}
+
+redisContext *redis_wrap_get_context(REDIS_WRAP *wrap) {
+    if(!wrap) {
+        return NULL;
+    }
+    return wrap->context;
+}
+
+char *redis_wrap_get_err(REDIS_WRAP *wrap) {
+    if(!wrap) {
+        return ERR_NULL_WRAP_STR;
+    }
+    return wrap->err;
+}
+
+RES_ROWS_ITER *redis_read(REDIS_WRAP *wrap, const char *key) {
+    int err;
+    if((err = redis_err_check(wrap, key))) {
+        return NULL;
+    }
+    redisContext *context = wrap->context;
     redisReply *reply = redisCommand(context, "LRANGE %s 0 -1", key);
 
     if(reply->type != REDIS_REPLY_ARRAY) {
@@ -25,7 +75,7 @@ RES_ROWS *redis_read(redisContext *context, const char *key) {
             num_cols++;
     }
 
-    RES_ROWS *res_rows = gen_rows(NULL, REDIS_ROW_TYPE, num_rows, num_cols);
+    RES_ROWS *res_rows = redis_gen_rows(NULL, num_rows, num_cols);
     int counter = 0;
     for (int i = 0; i < num_rows; i++, counter++) {
         for(int j = 0; j < num_cols; j++) {
@@ -51,21 +101,35 @@ RES_ROWS *redis_read(redisContext *context, const char *key) {
     }
 
     freeReplyObject(reply);
-    return res_rows;
+
+    struct REDIS_RES_ROWS_ITER * iter = redis_iter_init(res_rows);
+    return (RES_ROWS_ITER *) iter;
 }
 
-uint32_t redis_write(redisContext *context, const char *key, RES_ROWS *rows) {
-    //TODO FIX THIS MEMORY LEAK
-    RES_ROWS_ITER *iter = res_row_iterator(rows);
+int32_t redis_write(REDIS_WRAP *wrap, const char *key, RES_ROWS_ITER *iter) {
+    int err;
+    if((err = redis_err_check(wrap, key))) {
+        return err;
+    }
+
+    if(!iter) {
+        return ERR_NULL_ITER;
+    }
+
+    redisContext *context = wrap->context;
+    if(iter->res_rows->type != MYSQL_ROW_TYPE) {
+        //TODO some eror handling here
+        return WRONG_ROW_TYPE;
+    }
     void *r = redisCommand(context, "DEL %s", key);
     freeReplyObject(r);
 
-    size_t num_cols = iter_num_cols(iter);
+    size_t num_cols = res_row_iter_cols(iter);
 
     register int count = 0;
 
-    while(iter_has_next(iter)) {
-        char **next = res_row_next(iter);
+    while(res_row_iter_has_next(iter)) {
+        char **next = res_row_iter_next(iter);
         for(int i = 0; i < num_cols; i++) {
             char *str = next[i];
             if(!str) {
@@ -80,31 +144,9 @@ uint32_t redis_write(redisContext *context, const char *key, RES_ROWS *rows) {
         ++count;
     }
 
-    free(iter);
+    //make sure to not free this iter, bc it will be returned, just using it
+    //this saves memory, since we do not duplicate iterator, just use it
 
+    res_row_iter_reset(iter);
     return count;
-}
-
-struct RES_ROWS_ITER *redis_iter(struct RES_ROWS *rows) {
-    return res_row_iterator(rows);
-}
-
-char **redis_iter_next(struct RES_ROWS_ITER *iter) {
-    return res_row_next(iter);
-}
-
-bool redis_iter_has_next(struct RES_ROWS_ITER *iter) {
-    return iter_has_next(iter);
-}
-
-void redis_iter_reset(struct RES_ROWS_ITER *iter) {
-    reset_res_row(iter);
-}
-
-void redis_iter_free(struct RES_ROWS_ITER *iter) {
-    free_res_row_iter(iter);
-}
-
-size_t redis_iter_num_cols(struct RES_ROWS_ITER *iter) {
-    return iter_num_cols(iter);
 }
