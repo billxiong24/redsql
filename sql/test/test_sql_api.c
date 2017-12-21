@@ -50,8 +50,13 @@ void simple_query_gen(CuTest *tc) {
 
 void simple_sql_read(CuTest *tc) {
     RES_ROWS_ITER *iter = setup_sql_read("select first_name, last_name from employees limit %d", 2);
+<<<<<<< HEAD
     char **next = res_row_iter_next(iter);
 
+=======
+
+    char **next = res_row_iter_next(iter);
+>>>>>>> 9ca7bed5d503a477339258f9cfd6433412eebf38
     CuAssertStrEquals(tc, next[0], "Georgi");
     CuAssertStrEquals(tc, next[1], "Facello");
 
