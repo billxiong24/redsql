@@ -3,14 +3,10 @@
 ## MYSQL C client  
   
 #### Debian/Ubuntu  
-```  
-sudo apt-get install libmysqlclient libmysqlclient-dev  
-```  
+`sudo apt-get install libmysqlclient libmysqlclient-dev`  
   
 #### CentOS/Fedora/RHEL  
-```  
-yum install mysql-devel
-```  
+`yum install mysql-devel`  
   
 ## HIREDIS C client  
 We need libevent library.  

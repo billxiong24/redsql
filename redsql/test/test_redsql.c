@@ -31,6 +31,7 @@ void redsql_test_simple_read(CuTest *tc) {
 }
 
 void redsql_test_simple_write(CuTest *tc) {
+    /*redsql_write(r_conn, [], 0, "INSERT INTO ")*/
 
 }
 void redsql_test_read(CuTest *tc) {
