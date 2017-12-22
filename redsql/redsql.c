@@ -50,16 +50,19 @@ struct redsql_conn *establish_conn(char *sql_host, char *sql_user, char *sql_pas
     MYSQL *mysql = mysql_init(NULL);
 
     if(mysql_real_connect(mysql, sql_host, sql_user, sql_pass, db, 0, NULL, 0) == NULL) {
-        fprintf(stderr, "MYSQL Connection failed.");
+        fprintf(stderr, "MYSQL Connection failed.\n");
         exit(1);
     }
     redisContext *context = redisConnect(redis_host, redis_port);
+    if(!context) {
+        fprintf(stderr, "Redis connection failed.\n");
+        exit(1);
+    }
 
     struct redsql_conn *conn = malloc(sizeof(*conn));
     MYSQL_WRAP *wrap = mysql_wrap_init(mysql);
     conn->mysql = wrap;
     conn->context = redis_wrap_init(context);
-
     return conn;
 }
 
