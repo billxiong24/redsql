@@ -8,9 +8,9 @@ sudo: required
 addons:
     apt:
         sources:
-            -ubuntu-toolchain-r-test
+            - ubuntu-toolchain-r-test
         packages:
-            - gcc-6
+            - gcc-5
 
 env:
     global:
