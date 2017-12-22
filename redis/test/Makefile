@@ -2,11 +2,12 @@
 CC=gcc
 CFLAGS=-Wall
 EXEC=test
+MYSQL_EXEC=/usr/bin/mysql_config --cflags --libs
 
 .PHONY: test clean
 
 test: run_test_redis_api.c test_redis_api.c
-	$(CC) $(CFLAGS) -o $(EXEC) ../../lib/CuTest.o test_redis_api.c run_test_redis_api.c ../../sql/sql_api.c ../redis_api.c ../../row/*.c -lhiredis `../../bin/mysql_config --cflags --libs`  
+	$(CC) $(CFLAGS) -o $(EXEC) ../../lib/CuTest.o test_redis_api.c run_test_redis_api.c ../../sql/sql_api.c ../redis_api.c ../../row/*.c -lhiredis `$(MYSQL_EXEC)`
 
 clean:
 	-rm test
