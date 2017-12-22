@@ -5,6 +5,13 @@ compiler:
 dist: trusty
 sudo: required
 
+addons:
+    apt:
+        sources:
+            -ubuntu-toolchain-r-test
+        packages:
+            - gcc-6
+
 env:
     global:
         - LD_LIBRARY_PATH="/usr/local/lib"
@@ -25,7 +32,8 @@ install:
     - scripts/setup_redis.sh 
 
 before_script:
-    - scripts/setup_db.sh
+    - cd scripts && ./setup_db.sh root
+    - gcc --version
 
 script:
     - make && make test

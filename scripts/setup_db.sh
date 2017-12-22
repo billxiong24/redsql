@@ -1,9 +1,10 @@
 #!/bin/bash
+USER=
 if [ "$#" -lt 1 ]; then
-    echo "Input user"
-    exit 1
+    USER="root"
+else
+    USER=$1
 fi
-USER=$1
 cd "../db_mock" || exit 1
 
 mysql -u "$USER" --password=$(printenv MYSQL_PASS) < "employees.sql" 
