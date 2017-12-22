@@ -32,7 +32,9 @@ install:
     - scripts/setup_redis.sh 
 
 before_script:
-    - cd scripts && ./setup_db.sh root
+    # TODO fix setup_db.sh script
+    - cd scripts && ./setup_db.sh root && cd ../
+    -  sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 60 
     - gcc --version
 
 script:
