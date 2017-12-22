@@ -10,20 +10,20 @@
 int main(void) {
     struct redsql_conn *conn;
 
-    conn = establish_conn("localhost", "root", "Chem1313#", "chatdb", "localhost", 6379);
+    conn = establish_conn("localhost", "root", "", "employees", "localhost", 6379);
 
     char *query; 
     char *key = "users";
 
-    query = "SELECT * FROM User";
+    query = "select emp_no, first_name, last_name, gender, salary from employees natural join dept_emp natural join salaries where gender = '%s' and salary > %d limit 5";
 
 
-    RES_ROWS_ITER *iter = redsql_read(conn, key, query, true);
+    RES_ROWS_ITER *iter = redsql_read(conn, key, query, true, "M", 60000);
     while(res_row_iter_has_next(iter)) {
         char **next = res_row_iter_next(iter);
         for(int i = 0; i < res_row_iter_cols(iter); i++) {
             if(next[i]) {
-                /*puts(next[i]);*/
+                puts(next[i]);
             }
             else {
                 puts("Nul");
@@ -31,15 +31,6 @@ int main(void) {
         }
     }
 
-    char *q= "SELECT id, chat_name, code, username, creator from Chat INNER JOIN MemberOf ON MemberOf.chat_id = Chat.id WHERE id = '%s'";
-
-    
-    RES_ROWS_ITER *iter2 = redsql_read(conn, "wat", q, true, "0043e138f3a1daf9ccfbf718fc9acd48");
-    while(res_row_iter_has_next(iter2)) {
-        res_row_iter_next(iter2);
-    }
-
-    res_row_iter_free(iter2);
     res_row_iter_reset(iter);
     char **n = res_row_iter_next(iter);
     puts(n[0]);
@@ -47,17 +38,13 @@ int main(void) {
     bool in = redsql_in_cache(conn, key);
     printf("in = %d\n", in);
 
-
-    in = redsql_in_cache(conn, key);
-    printf("in = %d\n", in);
-
     res_row_iter_free(iter);
     
     const char *evict[] = {
-        "users",
+        /*"users",*/
         "wat"
     };
-    unsigned long num = redsql_write(conn, evict, 2, "SELECT * FROM User");
+    unsigned long num = redsql_write(conn, evict, 2, query);
     printf("num = %d\n", num);
     free_redsql_conn(conn);
 
