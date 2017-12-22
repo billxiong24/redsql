@@ -1,0 +1,31 @@
+language: c
+compiler:
+    - gcc
+
+dist: trusty
+sudo: required
+
+env:
+    global:
+        - LD_LIBRARY_PATH="/usr/local/lib"
+        - C_INCLUDE_PATH=".:/usr/include/mysql/:/usr/include"
+        - MYSQL_HOST="localhost"
+        - MYSQL_USER="root"
+        - MYSQL_PASS=
+        - REDIS_HOST="localhost"
+        - REDIS_PORT="6379"
+
+services:
+    - redis-server
+    - mysql
+
+install: 
+    - sudo apt-get install libmysqlclient-dev 
+    - sudo apt-get install libevent-dev
+    - scripts/setup_redis.sh 
+
+before_script:
+    - scripts/setup_db.sh
+
+script:
+    - make && make test

@@ -6,4 +6,4 @@ fi
 USER=$1
 cd "../db_mock" || exit 1
 
-mysql -u "$USER" -p < "employees.sql" 
+mysql -u "$USER" --password=$(printenv MYSQL_PASS) < "employees.sql" 
