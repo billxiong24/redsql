@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdarg.h>
 #include "sql_api.h"
 #include "_priv_sql_api.h"

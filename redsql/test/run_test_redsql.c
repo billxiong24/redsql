@@ -1,26 +1,9 @@
 #include <stdio.h>
-#include "../../CuTest.h"
+#include "../../test_functions/test_func.h"
 
 extern CuSuite *redsql_suite();
-extern void before_all();
-
-static void get_res(CuSuite *suite) {
-
-    CuString *res = CuStringNew();
-    CuSuiteSummary(suite, res);
-    CuSuiteDetails(suite, res);
-
-    printf("%s\n", res->buffer);
-}
 
 int main(void) {
-
-    before_all();
-    CuSuite *suite = CuSuiteNew();
-
-    CuSuiteAddSuite(suite, redsql_suite());
-    CuSuiteRun(suite);
-    get_res(suite);
-    
+    test_run(redsql_suite);
     return 0;
 }

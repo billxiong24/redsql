@@ -1,7 +1,6 @@
 #ifndef SQL_API_H
 #define SQL_API_H
-#include <mysql/my_global.h>
-#include <mysql/mysql.h>
+#include <mysql.h>
 #include <inttypes.h>
 #include <stdbool.h>
 #include "../types.h"

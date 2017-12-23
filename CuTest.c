@@ -302,7 +302,7 @@ void CuSuiteSummary(CuSuite* testSuite, CuString* summary)
 	CuStringAppend(summary, "\n\n");
 }
 
-void CuSuiteDetails(CuSuite* testSuite, CuString* details)
+int CuSuiteDetails(CuSuite* testSuite, CuString* details)
 {
 	int i;
 	int failCount = 0;
@@ -312,6 +312,7 @@ void CuSuiteDetails(CuSuite* testSuite, CuString* details)
 		int passCount = testSuite->count - testSuite->failCount;
 		const char* testWord = passCount == 1 ? "test" : "tests";
 		CuStringAppendFormat(details, "OK (%d %s)\n", passCount, testWord);
+        return 0;
 	}
 	else
 	{
@@ -335,5 +336,7 @@ void CuSuiteDetails(CuSuite* testSuite, CuString* details)
 		CuStringAppendFormat(details, "Runs: %d ",   testSuite->count);
 		CuStringAppendFormat(details, "Passes: %d ", testSuite->count - testSuite->failCount);
 		CuStringAppendFormat(details, "Fails: %d\n",  testSuite->failCount);
+
+        return 1;
 	}
 }

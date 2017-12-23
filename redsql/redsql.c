@@ -126,16 +126,13 @@ RES_ROWS_ITER *redsql_read(struct redsql_conn *conn, const char *key, const char
     freeReplyObject(exists);
 
     if(key_exists && cache) {
-        puts("cache hit");
         return redis_read(wrap, key);
     }
     else {
-        puts("cache miss");
        
         RES_ROWS_ITER *iter = sql_read(mysql, query, args);
 
         if(cache) {
-            puts("writing to query result to cache");
             redis_write(wrap, key, iter);
             store_query(context, key, query, args_copy);
         }

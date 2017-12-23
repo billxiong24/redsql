@@ -111,6 +111,6 @@ void CuSuiteAdd(CuSuite* testSuite, CuTest *testCase);
 void CuSuiteAddSuite(CuSuite* testSuite, CuSuite* testSuite2);
 void CuSuiteRun(CuSuite* testSuite);
 void CuSuiteSummary(CuSuite* testSuite, CuString* summary);
-void CuSuiteDetails(CuSuite* testSuite, CuString* details);
+int CuSuiteDetails(CuSuite* testSuite, CuString* details);
 
 #endif /* CU_TEST_H */

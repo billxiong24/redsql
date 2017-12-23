@@ -1,3 +1,3 @@
-#include "CuTest.h"
+#include "../CuTest.h"
 typedef CuSuite *(*New_suite)();
-void run(New_suite func);
+extern void test_run(New_suite func);

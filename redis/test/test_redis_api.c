@@ -35,7 +35,6 @@ static int32_t setup_redis_write(const char *key) {
     char *query = "select first_name, last_name from employees limit 2";
     RES_ROWS_ITER *iter = setup_sql_read(query);
     return redis_write(redis_wrap, key, iter);
-    res_row_iter_free(iter);
 }
 
 void before_all() {
