@@ -41,10 +41,10 @@ int main(void) {
     res_row_iter_free(iter);
     
     const char *evict[] = {
-        /*"users",*/
+        "users",
         "wat"
     };
-    unsigned long num = redsql_write(conn, evict, 2, query);
+    unsigned long num = redsql_write(conn, evict, 2, query, "M", 60000);
     printf("num = %d\n", num);
     free_redsql_conn(conn);
 

@@ -3,8 +3,6 @@
 
 #include <mysql/my_global.h>
 #include <mysql/mysql.h>
-#include <hiredis/async.h>
-#include <hiredis/adapters/libevent.h>
 #include "../types.h"
 #include "../redis/redis_api.h"
 #include "../sql/sql_api.h"

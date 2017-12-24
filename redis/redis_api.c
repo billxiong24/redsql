@@ -4,6 +4,9 @@
 #include "_priv_redis_api.h"
 //TODO add support for async calls
 
+#define NULL_DELIM "(*@#$(*$W%9747(@*#$)*@#$(*$%&#$%*&__!@))#$*!@(($#"
+#define NULL_SYM "((NULL))"
+
 static int redis_err_check(REDIS_WRAP *wrap, const char *key) {
     if(!wrap) {
         return ERR_NULL_WRAP;
@@ -92,6 +95,7 @@ RES_ROWS_ITER *redis_read(REDIS_WRAP *wrap, const char *key) {
                 size_t len = strlen(str);
                 res_rows->row_types.rows[i].fields[j] = malloc(sizeof(char) * len + 1);
                 strncpy(res_rows->row_types.rows[i].fields[j], str, len);
+                //always make sure to null terminate strings
                 res_rows->row_types.rows[i].fields[j][len] = '\0';
 
             }
