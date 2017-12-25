@@ -1,4 +1,5 @@
-.DEFAULT_GOAL := redsql.so
+LIB_NAME=libredsql.so
+.DEFAULT_GOAL := $(LIB_NAME)
 CC=gcc
 CFLAGS= -Wall
 EXEC=main
@@ -13,46 +14,39 @@ SQL_DIR=sql/test
 REDSQL_DIR=redsql/test
 TEST_EXEC=test
 
-ROW_OBJ=_priv_row.o
 LINKS=-levent -lhiredis
 
 COMP=$(CC) $(CFLAGS) -fPIC -c 
-OBJ=redsql.o redis_api.o sql_api.o _priv_row.o _priv_row_def.o _priv_row_redis.o _priv_row_sql.o
+OBJ=redsql/redsql.o redis/redis_api.o sql/sql_api.o row/_priv_row.o row/_priv_row_def.o row/_priv_row_redis.o row/_priv_row_sql.o
 
+#OBJ_COMP=$(notdir $(OBJ))
+OBJDIR=out/
+
+# modify include path so that mysql's headers can be found
+export C_INCLUDE_PATH=.:/usr/include/mysql/:/usr/include
 
 
 .PHONY: test clean
 
-redsql.so: $(OBJ)
+$(LIB_NAME): $(OBJ)
 	$(CC) -shared -Wl,-soname,libredsql.so -o libredsql.so $(OBJ)
-	rm $(OBJ)
 
-redsql.o: $(REDSQL_C)
-	$(COMP) $<
 
-redis_api.o: $(REDIS_API)
-	$(COMP) $<
+redsql/redsql.o: $(REDSQL_C) $(REDSQL_H)
+	$(COMP) $< -o $@
 
-sql_api.o: $(SQL_API)
-	$(COMP) $<
+%_api.o : %_api.c %_api.h _priv_%_api.h
+	$(COMP) $< -o $@
 
-_priv_row.o: row/_priv_row.c 
-	$(COMP) $<
-
-_priv_row_def.o: row/_priv_row_def.c
-	$(COMP) $<
-
-_priv_row_redis.o: row/_priv_row_redis.c 
-	$(COMP) $<
-
-_priv_row_sql.o: row/_priv_row_sql.c 
-	$(COMP) $<
+_priv_row%.o: _priv_row%.c _priv_row%.h
+	$(COMP) $< -o $@
 
 redsql: $(REDSQL_C) $(REDSQL_H) sql/* row/* redis/* types.h main.c
 	$(CC) $(CFLAGS) -o $(EXEC)  main.c $(REDSQL_C) $(REDIS_API) $(SQL_API) row/*.c `$(MYSQL_EXEC)` $(LINKS)
 
 clean:
 	-rm -f *.o *.so $(EXEC) dump.rdb
+	-find . ! -name CuTest.o -name '*.o' -type f -delete
 	-scripts/rmswp.sh
 
 leak:

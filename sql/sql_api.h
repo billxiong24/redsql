@@ -7,8 +7,6 @@
 #include "../row/_priv_row.h"
 
 #include "../redsql_err.h"
-//TODO add line number and file
-
 
 /**
  * struct to encapsulate a MYSQL struct pointer, as well an error message.

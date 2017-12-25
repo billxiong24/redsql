@@ -121,4 +121,4 @@ struct RES_ROW_VTABLE {
  */
 struct RES_ROWS_ITER res_row_iter_init(struct RES_ROWS *rows, struct RES_ROW_VTABLE *table);
 
-#endif
+#endif /* _PRIV_ROW_DEF_H */
