@@ -3,7 +3,6 @@
 #include <string.h>
 #include "_priv_dict.h"
 
-
 static unsigned int hash(char *str, size_t size) {
     unsigned long hash = 5857;
     int c;
@@ -34,7 +33,7 @@ DICT *dict_init(size_t size) {
     return dict;
 }
 
-bool dict_put(DICT *dict, char *key, char *val) {
+bool dict_put(DICT *dict, char *key, void *val) {
     unsigned int ind = hash(key, dict->size);
     NODE *head = dict->arr[ind];
     if(!head) {
@@ -66,7 +65,7 @@ bool dict_remove(DICT *dict, char *key) {
     return false;
 }
 
-char *dict_get(DICT *dict, char *key) {
+void *dict_get(DICT *dict, char *key) {
     unsigned int ind = hash(key, dict->size);
     NODE *head = dict->arr[ind];
 
@@ -89,18 +88,23 @@ size_t dict_size(DICT *dict) {
     return dict->size;
 }
 
-void dict_free(DICT *dict) {
+void dict_free(DICT *dict, void (*free_func)(void *)) {
     NODE **arr = dict->arr;
     size_t size = dict->size;
 
+    //free each node before freeing array
     for (int i = 0; i < size; i++) {
         NODE *trav = arr[i];
         while(trav) {
             NODE *temp = trav;
+            if(free_func) {
+                free_func(trav->val);
+            }
             trav = trav->next;
             free(temp);
         }
     }
+
     free(arr);
     free(dict);
 }

@@ -7,8 +7,8 @@
 
 typedef struct NODE {
     struct NODE *next;
-    char *key;
-    char *val;
+    void *key;
+    void *val;
 } NODE;
 
 struct DICT {

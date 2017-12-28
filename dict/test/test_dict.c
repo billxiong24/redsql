@@ -1,21 +1,29 @@
 #include <stdio.h>
 #include "../dict.h"
+#include "../dirtybit_map.h"
+#include <string.h>
+
+
+void test(DICT *dict, char *key, char *v) {
+    unsigned char *p = v;
+    dict_put(dict, key, p);
+}
+
+void str(DICT *dict, char *key, char *val) {
+    /*char buf[16];*/
+    dict_put(dict, key, val);
+}
 
 int main(void) {
 
-    DICT *dict = dict_init(16);
-    dict_put(dict, "a", "b");
-    dict_put(dict, "df", "asdf");
-    dict_put(dict, "a", "dfad");
-    dict_put(dict, "ef", "aer");
-    dict_put(dict, "ghy", "b");
+    DBM *dict = dbm_init(16);
 
-    puts(dict_get(dict, "a"));
-    puts(dict_get(dict, "df"));
-    puts(dict_get(dict, "ef"));
-    puts(dict_get(dict, "ghy"));
+    dbm_put(dict, "asdf", 0);
+    dbm_put(dict, "dfdf", 1);
+    dbm_put(dict, "vbvb", 1);
+    dbm_put(dict, "hithere", 1);
+    printf("dbm_get(dict) = %d\n", dbm_get(dict, "vbvb"));
 
-    dict_free(dict);
-    
+    dbm_free(dict);
     return 0;
 }
