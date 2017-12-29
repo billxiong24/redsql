@@ -4,7 +4,7 @@
  */
 #ifndef DIRTYBIT_MAP_H
 #define DIRTYBIT_MAP_H
-#include "dict.h"
+#include "../dict.h"
 
 #define DBM_NULL 2
 #define DBM_RANGE_ERR 3
