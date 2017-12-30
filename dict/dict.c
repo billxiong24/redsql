@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "_priv_dict.h"
+#include "./util/str_util.h"
 
 static unsigned int hash(char *str, size_t size) {
     unsigned long hash = 5857;
@@ -13,11 +14,14 @@ static unsigned int hash(char *str, size_t size) {
     return hash % size;
 }
 
-static NODE *new_node(char *key, char *val) {
+static NODE *new_node(char *key, void *val) {
     NODE *n = malloc(sizeof(NODE));
     n->next = NULL;
-    n->key = key;
+    n->key = str_util_clone(key);
+
+    //client should take care to not delete this variable in mem
     n->val = val;
+
     return n;
 }
 
@@ -58,7 +62,7 @@ bool dict_put(DICT *dict, char *key, void *val) {
     NODE *node = new_node(key, val);
     node->next = head;
     dict->arr[ind] = node;
-    return true;
+    return false;
 }
 
 bool dict_remove(DICT *dict, char *key) {
@@ -101,10 +105,10 @@ void dict_free(DICT *dict, void (*free_func)(void *)) {
                 free_func(trav->val);
             }
             trav = trav->next;
+            free(temp->key);
             free(temp);
         }
     }
-
     free(arr);
     free(dict);
 }

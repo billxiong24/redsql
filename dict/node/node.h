@@ -4,10 +4,12 @@
 
 typedef struct NODE {
     struct NODE *next;
-    void *val;
+    char *val;
 } NODE;
 
 void node_free(NODE *);
+
+NODE *node_init(char *val);
 
 
 
