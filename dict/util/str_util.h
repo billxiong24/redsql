@@ -9,6 +9,7 @@
 
 
 char *str_util_clone(char *data);
+char** str_util_split(char* str, const char delim);
 
 
 #endif
