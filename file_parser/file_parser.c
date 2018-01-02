@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../dict/keyquery_map/keyquery_map.h"
-#include "../dict/tablekey_map/tablekey_map.h"
 #include "../dict/util/str_util.h"
+
+#define KEY_DELIM "[KEY]"
 
 /**
  * The struct definition contains 2 maps.
@@ -20,14 +20,18 @@
  * to determine which keys in the cache are invalidated based on the execution of a certain key.
  */
 struct REDSQL_FILE_PARSER {
+    size_t num_keys;
     TABLEKEY_MAP *tk_map;
     KEYQUERY_MAP *kq_map;
+    DBM *dbm;
 };
 
 REDSQL_FILE_PARSER *redsql_file_parser_init(size_t capacity) {
     REDSQL_FILE_PARSER *parser = malloc(sizeof(struct REDSQL_FILE_PARSER));
     parser->tk_map = tablekey_init(capacity);
     parser->kq_map = keyquery_init(capacity);
+    parser->dbm = dbm_init(capacity);
+    parser->num_keys = 0;
 
     return parser;
 }
@@ -51,6 +55,8 @@ void store_parsed_info(DICT *kv, REDSQL_FILE_PARSER *parser) {
     char **arr = str_util_split(dict_get(kv, "affected_tables"), ' ');
     char *key = dict_get(kv, "key");
     char *query = dict_get(kv, "query");
+    //populate dirtybit map first with 0, indicating no eviction
+    dbm_put(parser->dbm, key, 0);
 
     /**
      * iterate through list of tables, and populate maps appropriately.
@@ -106,17 +112,37 @@ void parse_key_entries(REDSQL_FILE_PARSER *parser, FILE *fp, ssize_t read) {
     store_parsed_info(kv, parser);
 }
 
-REDSQL_FILE_PARSER *redsql_file_parser_load(char *file) {
-    REDSQL_FILE_PARSER *parser = redsql_file_parser_init(32);
+size_t count_num_keys(FILE *fp) {
+    char *line = NULL;
+    size_t size = 0;
+    ssize_t read = 0;
+    int num_keys = 0;
+
+    while((read = getline(&line, &size, fp)) != -1) {
+        remove_newline(line, read);
+        if(strcmp(line, KEY_DELIM) == 0) {
+            num_keys++;
+        }
+    }
+
+    //after iterating file, reset pointer to beginning of file
+    fseek(fp, 0, SEEK_SET);
+
+    return num_keys;
+}
+
+REDSQL_FILE_PARSER *redsql_fp_load(char *file) {
     FILE *fp = fopen(file, "r");
     if(!fp) {
         return NULL;
     }
 
+    size_t num_keys = count_num_keys(fp);
+    printf("num_keys = %d\n", num_keys);
+    REDSQL_FILE_PARSER *parser = redsql_file_parser_init(num_keys);
     char *line = NULL;
     size_t size = 0;
     ssize_t read;
-
     //TODO make this portable?
     while((read = getline(&line, &size, fp)) != -1) {
         if(check_skip(line)) {
@@ -124,12 +150,35 @@ REDSQL_FILE_PARSER *redsql_file_parser_load(char *file) {
         }
         remove_newline(line, read);
 
-        if(strcmp(line, "[KEY]") == 0) {
+        if(strcmp(line, KEY_DELIM) == 0) {
             parse_key_entries(parser, fp, read);
         }
     }
     free(line);
     fclose(fp);
 
+    parser->num_keys = num_keys;
+
     return parser;
+}
+
+
+KEY_INFO *redsql_fp_get_tables(REDSQL_FILE_PARSER *parser, char *key) {
+    return tablekey_get(parser->tk_map, key);
+}
+
+NODE *redsql_fp_get_keys(REDSQL_FILE_PARSER *parser, char *table) {
+    return keyquery_get(parser->kq_map, table);
+}
+
+size_t redsql_fp_num_keys(REDSQL_FILE_PARSER *parser) {
+    return parser->num_keys;
+}
+
+unsigned char redsql_fp_get_dirtybit(REDSQL_FILE_PARSER *parser, char *key) {
+    return dbm_get(parser->dbm, key);
+}
+
+unsigned char redsql_fp_set_dirtybit(REDSQL_FILE_PARSER *parser, char *key, unsigned char bit) {
+    return dbm_put(parser->dbm, key, bit);
 }

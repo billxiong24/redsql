@@ -63,12 +63,12 @@ bool tablekey_set_query(TABLEKEY_MAP *tk_map, char *query_key, char *query) {
     return true;
 }
 
-bool tablekey_remove(TABLEKEY_MAP *tk_map, char *table) {
+bool tablekey_remove(TABLEKEY_MAP *tk_map, char *key) {
     return false;
 }
 
-KEY_INFO *tablekey_get(TABLEKEY_MAP *tk_map, char *table) {
-    return (KEY_INFO *) dict_get(tk_map->dict, table);
+KEY_INFO *tablekey_get(TABLEKEY_MAP *tk_map, char *key) {
+    return (KEY_INFO *) dict_get(tk_map->dict, key);
 }
 
 void tablekey_free(TABLEKEY_MAP *tk_map) {

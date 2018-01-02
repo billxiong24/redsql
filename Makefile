@@ -26,7 +26,7 @@ OBJDIR=out/
 export C_INCLUDE_PATH=.:/usr/include/mysql/:/usr/include
 
 
-.PHONY: test clean
+.PHONY: test clean redsql
 
 $(LIB_NAME): $(OBJ)
 	$(CC) -shared -Wl,-soname,libredsql.so -o libredsql.so $(OBJ)
@@ -45,7 +45,8 @@ redsql: $(REDSQL_C) $(REDSQL_H) sql/* row/* redis/* types.h main.c
 	$(CC) $(CFLAGS) -o $(EXEC)  main.c $(REDSQL_C) $(REDIS_API) $(SQL_API) row/*.c `$(MYSQL_EXEC)` $(LINKS)
 
 clean:
-	-rm -f *.o *.so $(EXEC) dump.rdb
+	-rm -f *.o *.so $(EXEC) file_test
+	-find . -name "dump.rdb" -type f -delete
 	-find . ! -name CuTest.o -name '*.o' -type f -delete
 	-scripts/rmswp.sh
 

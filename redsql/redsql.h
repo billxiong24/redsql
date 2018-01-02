@@ -71,8 +71,13 @@ bool redsql_evict(redsql_conn *, const char *key);
  */
 void free_redsql_conn(redsql_conn *conn);
 
+
 /**
- * TODO Prepared statements API
+ * These functions are identical to redsql_write and redsql_read, respectively, but take in 
+ * va_list arguments, for use in other functions.
  */
+unsigned long v_redsql_write(struct redsql_conn *conn, const char *evict_keys[], size_t evict_size, const char *query, va_list args);
+
+RES_ROWS_ITER *v_redsql_read(struct redsql_conn *conn, const char *key, const char *query, bool cache, va_list args);
 
 #endif  

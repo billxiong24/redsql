@@ -18,7 +18,7 @@ DBM *dbm_init(size_t capacity) {
     return dbm;
 }
 
-unsigned char dbm_put(DBM *dbm, char *key, unsigned char val){
+unsigned char dbm_put(DBM *dbm, char *key, unsigned char val) {
 
     DICT *dict = dbm->dict;
     if(val != 0 && val != 1) {
@@ -34,11 +34,11 @@ unsigned char dbm_put(DBM *dbm, char *key, unsigned char val){
     dict_put(dict, key, ptr);
 }
 
-bool dbm_remove(DBM *dbm, char *key){
+bool dbm_remove(DBM *dbm, char *key) {
     return false;
 }
 
-unsigned char dbm_get(DBM *dbm, char *key){
+unsigned char dbm_get(DBM *dbm, char *key) {
     DICT *dict = dbm->dict;
     unsigned char *ptr = dict_get(dict, key);
     char *res = dict_get(dict, key);

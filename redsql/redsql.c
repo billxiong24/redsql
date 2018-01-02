@@ -107,13 +107,28 @@ bool redsql_evict(struct redsql_conn *conn, const char *key) {
 }
 
 RES_ROWS_ITER *redsql_read(struct redsql_conn *conn, const char *key, const char *query, bool cache, ...) {
+
+    va_list args;
+    va_start(args, cache);
+
+    return v_redsql_read(conn, key, query, cache, args);
+}
+
+unsigned long redsql_write(struct redsql_conn *conn, const char *evict_keys[], size_t evict_size, const char *query, ...) {
+    va_list args;
+    va_start(args, query);
+
+    return v_redsql_write(conn, evict_keys, evict_size, query, args);
+}
+
+RES_ROWS_ITER *v_redsql_read(struct redsql_conn *conn, const char *key, const char *query, bool cache, va_list args) {
     MYSQL_WRAP *mysql = conn->mysql;
 
     REDIS_WRAP *wrap = conn->context;
     redisContext *context = redis_wrap_get_context(wrap);
 
-    va_list args, args_copy;
-    va_start(args, cache);
+    va_list args_copy;
+    /*va_start(args, cache);*/
     va_copy(args_copy, args);
 
     //check if key exists in redis
@@ -142,12 +157,10 @@ RES_ROWS_ITER *redsql_read(struct redsql_conn *conn, const char *key, const char
     }
 }
 
-unsigned long redsql_write(struct redsql_conn *conn, const char *evict_keys[], size_t evict_size, const char *query, ...) {
+unsigned long v_redsql_write(struct redsql_conn *conn, const char *evict_keys[], size_t evict_size, const char *query, va_list args) {
     MYSQL_WRAP *mysql = conn->mysql;
     REDIS_WRAP *context = conn->context;
 
-    va_list args;
-    va_start(args, query);
 
     sql_write(mysql, query, args);
 
@@ -158,6 +171,7 @@ unsigned long redsql_write(struct redsql_conn *conn, const char *evict_keys[], s
 
     return 0L;
 }
+
 
 void free_redsql_conn(struct redsql_conn *conn) {
     mysql_wrap_free(conn->mysql);

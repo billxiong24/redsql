@@ -33,7 +33,6 @@ int main(void) {
 
     res_row_iter_reset(iter);
     char **n = res_row_iter_next(iter);
-    puts(n[0]);
 
     bool in = redsql_in_cache(conn, key);
     printf("in = %d\n", in);

@@ -31,8 +31,25 @@ void redsql_test_simple_read(CuTest *tc) {
 }
 
 void redsql_test_simple_write(CuTest *tc) {
-    /*redsql_write(r_conn, [], 0, "INSERT INTO ")*/
+    char *query; 
+    char *key = "users";
 
+    query = QUERY;
+
+
+    RES_ROWS_ITER *iter = redsql_read(r_conn, key, query, true, "M", 60000);
+
+    bool in = redsql_in_cache(r_conn, key);
+    CuAssertTrue(tc, in);
+
+    res_row_iter_free(iter);
+    
+    const char *evict[] = {
+        "users",
+        "wat"
+    };
+    unsigned long num = redsql_write(r_conn, evict, 2, query, "M", 60000);
+    CuAssertIntEquals(tc, 1, num);
 }
 void redsql_test_read(CuTest *tc) {
     //check that key is not in cache
