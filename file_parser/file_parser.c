@@ -56,7 +56,6 @@ void store_parsed_info(DICT *kv, REDSQL_FILE_PARSER *parser) {
     char *key = dict_get(kv, "key");
     char *query = dict_get(kv, "query");
     //populate dirtybit map first with 0, indicating no eviction
-    dbm_put(parser->dbm, key, 0);
 
     /**
      * iterate through list of tables, and populate maps appropriately.
@@ -181,4 +180,8 @@ unsigned char redsql_fp_get_dirtybit(REDSQL_FILE_PARSER *parser, char *key) {
 
 unsigned char redsql_fp_set_dirtybit(REDSQL_FILE_PARSER *parser, char *key, unsigned char bit) {
     return dbm_put(parser->dbm, key, bit);
+}
+
+void redsql_fp_set_dirtybit_scan(REDSQL_FILE_PARSER *parser, char *pattern) {
+    dbm_set_pattern_val(parser->dbm, pattern);
 }

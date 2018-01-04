@@ -14,7 +14,7 @@ SQL_DIR=sql/test
 REDSQL_DIR=redsql/test
 TEST_EXEC=test
 
-LINKS=-levent -lhiredis
+LINKS=-levent -lhiredis -lssl -lcrypto
 
 COMP=$(CC) $(CFLAGS) -fPIC -c 
 OBJ=redsql/redsql.o redis/redis_api.o sql/sql_api.o row/_priv_row.o row/_priv_row_def.o row/_priv_row_redis.o row/_priv_row_sql.o
@@ -42,7 +42,7 @@ _priv_row%.o: _priv_row%.c _priv_row%.h
 	$(COMP) $< -o $@
 
 redsql: $(REDSQL_C) $(REDSQL_H) sql/* row/* redis/* types.h main.c
-	$(CC) $(CFLAGS) -o $(EXEC)  main.c $(REDSQL_C) $(REDIS_API) $(SQL_API) row/*.c `$(MYSQL_EXEC)` $(LINKS)
+	$(CC) $(CFLAGS) -o $(EXEC)  main.c $(REDSQL_C) $(REDIS_API) $(SQL_API) row/*.c redsql/rsql.c file_parser/file_parser.c dict/dict.c dict/node/node.c dict/util/str_util.c dict/dirtybit_map/dirtybit_map.c dict/tablekey_map/tablekey_map.c dict/keyquery_map/keyquery_map.c `$(MYSQL_EXEC)` $(LINKS)
 
 clean:
 	-rm -f *.o *.so $(EXEC) file_test

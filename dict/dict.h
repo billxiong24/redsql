@@ -25,6 +25,8 @@ bool dict_remove(DICT *, char *key);
 void *dict_get(DICT *, char *key);
 size_t dict_size(DICT *);
 
+void dict_for_each(DICT *dict, char *pattern, void (*func)(DICT *obj, char *key, char *pat));
+
 void dict_free(DICT *, void (*free_func) (void *));
 
 #endif

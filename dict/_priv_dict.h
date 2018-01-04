@@ -5,15 +5,15 @@
 #ifndef _PRIV_DICT_H
 #define _PRIV_DICT_H
 
-typedef struct NODE {
-    struct NODE *next;
+typedef struct DICT_NODE {
+    struct DICT_NODE *next;
     char *key;
     void *val;
-} NODE;
+} DICT_NODE;
 
 struct DICT {
     size_t size;
-    NODE **arr;
+    DICT_NODE **arr;
 };
 
 #endif

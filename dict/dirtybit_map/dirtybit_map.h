@@ -17,6 +17,8 @@ unsigned char dbm_put(DBM *, char *key, unsigned char val);
 bool dbm_remove(DBM *, char *key);
 unsigned char dbm_get(DBM *, char *key);
 
+void dbm_set_pattern_val(DBM *, char *pattern);
+
 void dbm_free(DBM *);
 
 #endif

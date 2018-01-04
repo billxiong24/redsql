@@ -128,7 +128,6 @@ RES_ROWS_ITER *v_redsql_read(struct redsql_conn *conn, const char *key, const ch
     redisContext *context = redis_wrap_get_context(wrap);
 
     va_list args_copy;
-    /*va_start(args, cache);*/
     va_copy(args_copy, args);
 
     //check if key exists in redis
@@ -141,16 +140,15 @@ RES_ROWS_ITER *v_redsql_read(struct redsql_conn *conn, const char *key, const ch
     freeReplyObject(exists);
 
     if(key_exists && cache) {
+        printf("hit key: %s\n", key);
         return redis_read(wrap, key);
     }
     else {
+        printf("missed key: %s, executing query: %s\n", key, query);
        
         RES_ROWS_ITER *iter = sql_read(mysql, query, args);
-
-        if(cache) {
-            redis_write(wrap, key, iter);
-            store_query(context, key, query, args_copy);
-        }
+        redis_write(wrap, key, iter);
+        store_query(context, key, query, args_copy);
         
         res_row_iter_reset(iter);
         return iter;
@@ -161,7 +159,7 @@ unsigned long v_redsql_write(struct redsql_conn *conn, const char *evict_keys[],
     MYSQL_WRAP *mysql = conn->mysql;
     REDIS_WRAP *context = conn->context;
 
-
+    printf("Executing write query: %s\n", query);
     sql_write(mysql, query, args);
 
     //evict list of keys

@@ -14,6 +14,8 @@ unsigned char redsql_fp_get_dirtybit(REDSQL_FILE_PARSER *, char *key);
 
 unsigned char redsql_fp_set_dirtybit(REDSQL_FILE_PARSER *, char *, unsigned char bit);
 
+void redsql_fp_set_dirtybit_scan(REDSQL_FILE_PARSER *parser, char *pattern);
+
 size_t redsql_fp_num_keys(REDSQL_FILE_PARSER *parser);
 
 void redsql_fp_free(REDSQL_FILE_PARSER *);
