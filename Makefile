@@ -14,13 +14,25 @@ SQL_DIR=sql/test
 REDSQL_DIR=redsql/test
 TEST_EXEC=test
 
-LINKS=-levent -lhiredis -lssl -lcrypto
+DBM_DIR=dict/dirtybit_map/dirtybit_map
+KQ_DIR=dict/keyquery_map/keyquery_map
+TK_DIR=dict/tablekey_map/tablekey_map
+NODE_DIR=dict/node/node
+UTIL_DIR=dict/util/str_util
+
+DICT=dict/dict.c dict/dict.h dict/_priv_dict.h
+DBM=$(DBM_DIR).c $(DBM_DIR).h
+KEYQUERY=$(KQ_DIR).c $(KQ_DIR).h 
+TABLEKEY=$(TK_DIR).c $(TK_DIR).h
+NODE=$(NODE_DIR).c $(NODE_DIR).h
+UTIL=$(UTIL_DIR).c $(UTIL_DIR).h
+
+
+LINKS=-levent -lhiredis -lssl -lcrypto -L. -lredsql
 
 COMP=$(CC) $(CFLAGS) -fPIC -c 
-OBJ=redsql/redsql.o redis/redis_api.o sql/sql_api.o row/_priv_row.o row/_priv_row_def.o row/_priv_row_redis.o row/_priv_row_sql.o
+OBJ=redsql/redsql.o redis/redis_api.o sql/sql_api.o row/_priv_row.o row/_priv_row_def.o row/_priv_row_redis.o row/_priv_row_sql.o redsql/rsql.o dict.o dbm.o keyquery.o tablekey.o node.o util.o
 
-#OBJ_COMP=$(notdir $(OBJ))
-OBJDIR=out/
 
 # modify include path so that mysql's headers can be found
 export C_INCLUDE_PATH=.:/usr/include/mysql/:/usr/include
@@ -29,8 +41,11 @@ export C_INCLUDE_PATH=.:/usr/include/mysql/:/usr/include
 .PHONY: test clean redsql
 
 $(LIB_NAME): $(OBJ)
-	$(CC) -shared -Wl,-soname,libredsql.so -o libredsql.so $(OBJ)
+	$(CC) -shared -Wl,-soname,$(LIB_NAME) -o $(LIB_NAME) $(OBJ)
 
+
+redsql/rsql.o: redsql/rsql.c redsql/rsql.h
+	$(COMP) $< -o $@
 
 redsql/redsql.o: $(REDSQL_C) $(REDSQL_H)
 	$(COMP) $< -o $@
@@ -41,8 +56,21 @@ redsql/redsql.o: $(REDSQL_C) $(REDSQL_H)
 _priv_row%.o: _priv_row%.c _priv_row%.h
 	$(COMP) $< -o $@
 
-redsql: $(REDSQL_C) $(REDSQL_H) sql/* row/* redis/* types.h main.c
-	$(CC) $(CFLAGS) -o $(EXEC)  main.c $(REDSQL_C) $(REDIS_API) $(SQL_API) row/*.c redsql/rsql.c file_parser/file_parser.c dict/dict.c dict/node/node.c dict/util/str_util.c dict/dirtybit_map/dirtybit_map.c dict/tablekey_map/tablekey_map.c dict/keyquery_map/keyquery_map.c `$(MYSQL_EXEC)` $(LINKS)
+dict.o: $(DICT)
+	$(COMP) $< -o $@
+dbm.o: $(DBM)
+	$(COMP) $< -o $@
+keyquery.o: $(KEYQUERY)
+	$(COMP) $< -o $@
+tablekey.o: $(TABLEKEY)
+	$(COMP) $< -o $@
+node.o: $(NODE)
+	$(COMP) $< -o $@
+util.o: $(UTIL)
+	$(COMP) $< -o $@
+
+redsql: $(LIB_NAME)
+	$(CC) $(CFLAGS) -o $(EXEC)  main.c file_parser/file_parser.c `$(MYSQL_EXEC)` $(LINKS)
 
 clean:
 	-rm -f *.o *.so $(EXEC) file_test

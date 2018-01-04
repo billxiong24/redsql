@@ -67,9 +67,12 @@ RES_ROWS_ITER *redsql_retrieve(REDSQL *redsql, char *key, ...) {
     //unformatted query e.g. SELECT * FROM table WHERE id=%d
     char *query = info->query;
 
-    va_list args, args_copy, args2;
+    va_list args, args_copy;
     va_start(args, key);
     va_copy(args_copy, args);
+    
+    //XXX removing this results in a segfault, have no idea why, keep it here
+    va_list d;
 
     //the formatted query
     char *query_gen = gen_query(query, args);
@@ -84,7 +87,8 @@ RES_ROWS_ITER *redsql_retrieve(REDSQL *redsql, char *key, ...) {
     char ascii[HASH_LEN * 2];
     memset(hash, 0, HASH_LEN);
     memset(ascii, 0, HASH_LEN * 2);
-    SHA256(query_gen, len, hash);
+    SHA256((const unsigned char *) query_gen, len, (unsigned char *) hash);
+
     //convert to ascii
     for (int i = 0; i < HASH_LEN; i++) {
         sprintf((char*)&(ascii[i*2]), "%02x", hash[i]);
@@ -106,4 +110,9 @@ RES_ROWS_ITER *redsql_retrieve(REDSQL *redsql, char *key, ...) {
 
     redsql_fp_set_dirtybit(redsql->parser, hash_key, 0);
     return v_redsql_read(redsql->rconn, hash_key, query, to_cache, args_copy);
+}
+
+void redsql_close(REDSQL *redsql) {
+    free_redsql_conn(redsql->rconn);
+    redsql_fp_free(redsql->parser);
 }

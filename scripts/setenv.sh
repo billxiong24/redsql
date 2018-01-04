@@ -1,5 +1,5 @@
 #!/bin/bash
-export LD_LIBRARY_PATH=/usr/local/lib
+export LD_LIBRARY_PATH="/usr/local/lib:."
 
 # angled includes are treated differently by different compilers
 # various header files in mysql files use angled includes for header files in 

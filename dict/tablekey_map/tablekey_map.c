@@ -15,11 +15,11 @@ static KEY_INFO *new_key_info() {
     return info;
 }
 
-static void key_info_free(void *arg) {
-    KEY_INFO *val = arg;
-    node_free(val->tables);
-    free(val);
-}
+/*static void key_info_free(void *arg) {*/
+    /*KEY_INFO *val = arg;*/
+    /*node_free(val->tables);*/
+    /*free(val);*/
+/*}*/
 
 TABLEKEY_MAP *tablekey_init(size_t capacity) {
     TABLEKEY_MAP *tk_map = malloc(sizeof(TABLEKEY_MAP));
@@ -75,5 +75,3 @@ void tablekey_free(TABLEKEY_MAP *tk_map) {
     dict_free(tk_map->dict, (void (*)(void *)) node_free);
     free(tk_map);
 }
-
-

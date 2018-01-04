@@ -36,12 +36,11 @@ bool dbm_remove(DBM *dbm, char *key) {
 unsigned char dbm_get(DBM *dbm, char *key) {
     DICT *dict = dbm->dict;
     unsigned char *ptr = dict_get(dict, key);
-    char *res = dict_get(dict, key);
 
     if(ptr == NULL) {
         return DBM_NULL;
     }
-    return atoi(ptr);
+    return atoi((const char *) ptr);
 }
 
 static void set_bit_pattern(DICT *dict, char *key, char *pattern) {

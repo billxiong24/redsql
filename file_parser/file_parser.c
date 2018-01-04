@@ -36,20 +36,20 @@ REDSQL_FILE_PARSER *redsql_file_parser_init(size_t capacity) {
     return parser;
 }
 
-int check_skip(char *line) {
+static int check_skip(char *line) {
     if(strcmp(line, "\n") == 0 || *line == '#' || *line ==';') {
         return 1;
     }
 
     return 0;
 }
-int remove_newline(char *line, ssize_t read) {
+static void remove_newline(char *line, ssize_t read) {
     if(line[read - 1] == '\n') {
         line[read - 1] = '\0';
     }
 }
 
-void store_parsed_info(DICT *kv, REDSQL_FILE_PARSER *parser) {
+static void store_parsed_info(DICT *kv, REDSQL_FILE_PARSER *parser) {
 
     //TODO move these constants somewhere
     char **arr = str_util_split(dict_get(kv, "affected_tables"), ' ');
@@ -75,9 +75,8 @@ void store_parsed_info(DICT *kv, REDSQL_FILE_PARSER *parser) {
     dict_free(kv, free);
 }
 
-void parse_key_entries(REDSQL_FILE_PARSER *parser, FILE *fp, ssize_t read) {
+static void parse_key_entries(REDSQL_FILE_PARSER *parser, FILE *fp, ssize_t read) {
     char *temp = NULL;
-    ssize_t temp_size = 0;
     int count = 0;
     DICT *kv = dict_init(8);
 
@@ -111,7 +110,7 @@ void parse_key_entries(REDSQL_FILE_PARSER *parser, FILE *fp, ssize_t read) {
     store_parsed_info(kv, parser);
 }
 
-size_t count_num_keys(FILE *fp) {
+static size_t count_num_keys(FILE *fp) {
     char *line = NULL;
     size_t size = 0;
     ssize_t read = 0;
@@ -137,7 +136,7 @@ REDSQL_FILE_PARSER *redsql_fp_load(char *file) {
     }
 
     size_t num_keys = count_num_keys(fp);
-    printf("num_keys = %d\n", num_keys);
+    /*printf("num_keys = %d\n", num_keys);*/
     REDSQL_FILE_PARSER *parser = redsql_file_parser_init(num_keys);
     char *line = NULL;
     size_t size = 0;
@@ -184,4 +183,11 @@ unsigned char redsql_fp_set_dirtybit(REDSQL_FILE_PARSER *parser, char *key, unsi
 
 void redsql_fp_set_dirtybit_scan(REDSQL_FILE_PARSER *parser, char *pattern) {
     dbm_set_pattern_val(parser->dbm, pattern);
+}
+
+void redsql_fp_free(REDSQL_FILE_PARSER *parser) {
+    tablekey_free(parser->tk_map);
+    dbm_free(parser->dbm);
+    keyquery_free(parser->kq_map);
+    free(parser);
 }

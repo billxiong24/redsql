@@ -66,6 +66,7 @@ char *gen_query(const char *query, va_list args) {
     va_list args_reuse;
     va_copy(args_reuse, args);
 
+    //XXX THIS LINES SEGFAULTS, something wrong with args
     int size = 1 + vsnprintf(NULL, 0, query, args);
     char *buffer = malloc(sizeof(char) * size);
     //we now know the appropriate suze to allocate to avoid buffer overflow

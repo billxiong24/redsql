@@ -9,7 +9,7 @@ static unsigned int hash(char *str, size_t size) {
     unsigned long hash = 5857;
     int c;
 
-    while (c = *str++)
+    while (( c = *str++ ))
         hash = ((hash << 5) + hash) + c;
 
     return hash % size;

@@ -12,6 +12,8 @@ unsigned long redsql_store(REDSQL *redsql, char *key, ...);
 
 RES_ROWS_ITER *redsql_retrieve(REDSQL *redsql, char *key, ...);
 
+void redsql_close(REDSQL *);
+
 
 
 #endif
