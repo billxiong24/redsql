@@ -28,7 +28,7 @@ NODE=$(NODE_DIR).c $(NODE_DIR).h
 UTIL=$(UTIL_DIR).c $(UTIL_DIR).h
 
 
-LINKS=-levent -lhiredis -lssl -lcrypto -L. -lredsql
+LINKS=-levent -L. -lredsql -lhiredis -lcrypto -lssl
 
 COMP=$(CC) $(CFLAGS) -fPIC -c 
 OBJ=redsql/redsql.o redis/redis_api.o sql/sql_api.o row/_priv_row.o row/_priv_row_def.o row/_priv_row_redis.o row/_priv_row_sql.o redsql/rsql.o dict.o dbm.o keyquery.o tablekey.o node.o util.o
@@ -70,7 +70,7 @@ util.o: $(UTIL)
 	$(COMP) $< -o $@
 
 redsql: $(LIB_NAME)
-	$(CC) $(CFLAGS) -o $(EXEC)  main.c file_parser/file_parser.c `$(MYSQL_EXEC)` $(LINKS)
+	$(CC) $(CFLAGS) -o $(EXEC)  main.c file_parser/file_parser.c $(LINKS) `$(MYSQL_EXEC)`
 
 clean:
 	-rm -f *.o *.so $(EXEC) file_test
