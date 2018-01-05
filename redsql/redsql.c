@@ -5,16 +5,6 @@
 
 #define QUERY_KEY "query:"
 
-static void store_query(redisContext *context, const char *key, const char *query, va_list args_copy) {
-    char *parsed_query = gen_query(query, args_copy);
-
-    void *rep = redisCommand(context, "SET %s%s %s", QUERY_KEY, key, parsed_query);
-
-    freeReplyObject(rep);
-    free(parsed_query);
-    va_end(args_copy);
-}
-
 static unsigned long evict_from_cache(redisContext *context, const char *keys[], size_t size) {
     void *mult = redisCommand(context, "MULTI");
 
@@ -148,7 +138,6 @@ RES_ROWS_ITER *v_redsql_read(struct redsql_conn *conn, const char *key, const ch
        
         RES_ROWS_ITER *iter = sql_read(mysql, query, args);
         redis_write(wrap, key, iter);
-        store_query(context, key, query, args_copy);
         
         res_row_iter_reset(iter);
         return iter;

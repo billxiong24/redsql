@@ -70,7 +70,10 @@ static void store_parsed_info(DICT *kv, REDSQL_FILE_PARSER *parser) {
         ind++;
     }
     tablekey_set_query(parser->tk_map, key, query);
-
+    ind = 0;
+    while(arr[ind]) {
+        free(arr[ind++]);
+    }
     free(arr);
     dict_free(kv, free);
 }

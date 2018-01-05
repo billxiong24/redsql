@@ -1,6 +1,15 @@
 # REDSQL Library [![Build Status](https://travis-ci.org/billxiong24/redsql.svg?branch=master)](https://travis-ci.org/billxiong24/redsql)
 
 ## Dependencies  
+
+### lib-ssl
+we need libssl-dev for openssl/sha.h header
+#### Debian/Ubuntu  
+`sudo apt-get install libssl-dev`  
+  
+#### CentOS/Fedora/RHEL  
+`sudo dnf -y install openssl-devel`  
+
   
 ### MYSQL C client  
 To install MYSQL C client, run the following command, depending on your distribution.  
